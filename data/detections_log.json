@@ -86,5 +86,27 @@
     "meaning_es": "Detente por completo. Sigue solo cuando sea seguro.",
     "verified": false,
     "cue_text": "Stop ahead."
+  },
+  {
+    "drive_id": "2026-10-03T16-40-57",
+    "ts_video": 1.9,
+    "ts_wall": "2026-10-03T20:41:01.121284+00:00",
+    "sign_id": "stop",
+    "sign_text": "STOP",
+    "safety_critical": true,
+    "speak_now": true,
+    "box": [
+      389,
+      179,
+      890,
+      541
+    ],
+    "confidence": 0.99,
+    "source": "gemini",
+    "thumb_url": "/thumbs/2026-10-03T16-40-57/1.jpg",
+    "meaning": "Come to a complete stop. Proceed only when it is safe.",
+    "meaning_es": "Detente por completo. Sigue solo cuando sea seguro.",
+    "verified": false,
+    "cue_text": "Stop ahead."
   }
 ]

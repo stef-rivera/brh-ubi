@@ -19,7 +19,7 @@ python scripts/make_demo_clip.py
 uvicorn backend.main:app --app-dir . --reload
 ```
 
-Open http://127.0.0.1:8000 and press **Start drive**. Replace `data/drive.mp4` with a real dashcam clip when you have one. **Use webcam** is for holding a printed sign up to the camera.
+Open http://127.0.0.1:8000 and press **Start drive**. Replace `data/drive.mp4` with a real dashcam clip when you have one. The demo is that file, not a live camera.
 
 Tiger Data is optional. Detections are saved in `data/detections_log.json` either way.
 

@@ -25,5 +25,14 @@
     "answer": "stop completely",
     "grade": "partial",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-03T20:41:27.713043+00:00",
+    "drive_id": "2026-10-03T16-40-57",
+    "sign_id": "stop",
+    "question": "You passed this sign. What must you do?",
+    "answer": "stop completely",
+    "grade": "partial",
+    "channel": "ui"
   }
 ]

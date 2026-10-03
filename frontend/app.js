@@ -13,41 +13,37 @@ const answer = document.querySelector("#answer");
 
 let voiceOn = false;
 let socket;
-let player = new Audio();
+const player = new Audio();
+const unlocker = new Audio();
 let spanishText = "";
 
 function unlockVoice() {
+  if (voiceOn) return;
   voiceOn = true;
-  player.src = "/audio/ad155beaf084f658.mp3";
-  player.volume = 0;
-  const started = player.play();
-  if (started) {
-    started.then(() => {
-      player.pause();
-      player.currentTime = 0;
-      player.volume = 1;
-    }).catch(() => {});
-  }
+  unlocker.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+  unlocker.volume = 0;
+  const started = unlocker.play();
+  if (started) started.catch(() => {});
 }
 
-function sayBrowser(text) {
+function sayBrowser(text, lang) {
   speechSynthesis.cancel();
   const clip = new SpeechSynthesisUtterance(text);
-  clip.lang = "en-US";
+  clip.lang = lang || "en-US";
   speechSynthesis.speak(clip);
 }
 
-function say(text, audioUrl) {
+function say(text, audioUrl, lang) {
   if (!voiceOn || !text) return;
   speechSynthesis.cancel();
   if (!audioUrl) {
-    sayBrowser(text);
+    sayBrowser(text, lang);
     return;
   }
   player.pause();
   player.src = audioUrl;
   player.volume = 1;
-  player.play().catch(() => sayBrowser(text));
+  player.play().catch(() => sayBrowser(text, lang));
 }
 
 function setMode(name) {
@@ -89,6 +85,7 @@ async function start(source) {
     return;
   }
   video.src = "/stream.mjpg?t=" + Date.now();
+  spanishText = "";
   log.replaceChildren();
   log.hidden = false;
   practice.hidden = true;
@@ -99,7 +96,6 @@ async function start(source) {
 }
 
 document.querySelector("#start-file").addEventListener("click", () => start("file"));
-document.querySelector("#start-cam").addEventListener("click", () => start("webcam"));
 
 park.addEventListener("click", async () => {
   const response = await fetch("/api/park", { method: "POST" });
@@ -112,6 +108,7 @@ park.addEventListener("click", async () => {
     practice.hidden = false;
     question.textContent = "No catalog signs on this drive yet.";
     progress.textContent = "";
+    spanishText = "";
     return;
   }
   showQuestion(body.next);
@@ -155,15 +152,24 @@ function showQuestion(item) {
 }
 
 document.querySelector("#spanish").addEventListener("click", async () => {
-  if (!spanishText) return;
+  if (!spanishText) {
+    hint.textContent = "Park after a sign is logged, then this speaks that sign in Spanish.";
+    return;
+  }
   unlockVoice();
-  const response = await fetch("/api/speak", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: spanishText }),
-  });
-  const body = await response.json();
-  say(spanishText, body.audio_url);
+  let audioUrl = "";
+  try {
+    const response = await fetch("/api/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: spanishText }),
+    });
+    const body = await response.json();
+    audioUrl = body.audio_url || "";
+  } catch {
+    audioUrl = "";
+  }
+  say(spanishText, audioUrl, "es-US");
 });
 
 function connect() {
