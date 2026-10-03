@@ -1,0 +1,144 @@
+:root {
+  color-scheme: dark;
+  --bg: #12140f;
+  --card: #1c2118;
+  --ink: #f4f1e8;
+  --muted: #b7b2a4;
+  --line: #34392c;
+  --accent: #e24b3b;
+  --ok: #8fbf6a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font: 18px/1.4 "Avenir Next", "Segoe UI", sans-serif;
+}
+
+header, main {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  padding: 28px 0 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+h1, h2 { margin: 0; font-weight: 650; }
+h1 { font-size: 34px; }
+h2 { font-size: 22px; }
+
+.status {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  letter-spacing: 0.12em;
+  font-size: 14px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+.stage, aside {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+#video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #050605;
+  border-radius: 12px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+button:disabled { opacity: 0.45; cursor: default; }
+
+.hint, .draft { color: var(--muted); font-size: 14px; }
+.hint { margin: 12px 0 0; }
+
+.log { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+
+.card {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.card img, #q-thumb {
+  width: 96px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #050605;
+}
+
+.card strong { display: block; }
+.chip {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  font-size: 12px;
+}
+.chip.quiet { background: #3a4033; }
+
+.practice { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.practice input {
+  border: 1px solid var(--line);
+  background: #12140f;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px;
+  font: inherit;
+}
+#question { font-size: 26px; margin: 0; }
+#result.correct { color: var(--ok); }
+#result.incorrect { color: #f0a39a; }
+#result.partial { color: #efd38a; }
+
+@media (max-width: 800px) {
+  main { grid-template-columns: 1fr; }
+  h1 { font-size: 28px; }
+}

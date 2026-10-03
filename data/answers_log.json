@@ -1,0 +1,29 @@
+[
+  {
+    "ts": "2026-10-03T19:18:26.693145+00:00",
+    "drive_id": "2026-10-03T15-17-42",
+    "sign_id": "stop",
+    "question": "You passed this sign. What must you do?",
+    "answer": "I must come to a complete stop",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-03T19:21:47.224692+00:00",
+    "drive_id": "2026-10-03T15-21-29",
+    "sign_id": "stop",
+    "question": "You passed this sign. What must you do?",
+    "answer": "stop",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-03T19:41:38.256056+00:00",
+    "drive_id": "2026-10-03T15-40-48",
+    "sign_id": "stop",
+    "question": "You passed this sign. What must you do?",
+    "answer": "stop completely",
+    "grade": "partial",
+    "channel": "ui"
+  }
+]

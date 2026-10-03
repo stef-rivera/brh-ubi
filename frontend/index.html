@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Road English Coach</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">Road English Coach</p>
+      <h1>Signs from this drive</h1>
+    </div>
+    <div class="status" id="mode">IDLE</div>
+  </header>
+
+  <main>
+    <section class="stage">
+      <img id="video" alt="Dashcam view" />
+      <div class="controls">
+        <button id="start-file" type="button">Start drive</button>
+        <button id="start-cam" type="button" class="secondary">Use webcam</button>
+        <button id="park" type="button" class="secondary" disabled>Park</button>
+      </div>
+      <p class="hint" id="hint">Press Start drive. The first click also turns the voice on.</p>
+    </section>
+
+    <aside id="panel">
+      <h2 id="panel-title">Sign log</h2>
+      <div id="log" class="log"></div>
+      <form id="practice" class="practice" hidden>
+        <p id="progress"></p>
+        <img id="q-thumb" alt="" hidden />
+        <p id="question"></p>
+        <input id="answer" type="text" placeholder="Say it in English" autocomplete="off" />
+        <div class="controls">
+          <button type="submit">Check</button>
+          <button id="spanish" type="button" class="secondary">Hear it in Spanish</button>
+        </div>
+        <p id="result"></p>
+      </form>
+    </aside>
+  </main>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

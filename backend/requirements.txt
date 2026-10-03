@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+opencv-python
+google-genai
+elevenlabs
+python-dotenv
+psycopg2-binary
+httpx
+websockets

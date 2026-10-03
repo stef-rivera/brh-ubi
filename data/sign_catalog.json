@@ -1,0 +1,152 @@
+[
+  {
+    "id": "stop",
+    "sign_text": "STOP",
+    "meaning": "Come to a complete stop. Proceed only when it is safe.",
+    "meaning_es": "Detente por completo. Sigue solo cuando sea seguro.",
+    "cue_text": "Stop ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. What must you do?",
+        "answer_keywords": ["stop", "complete stop"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "yield",
+    "sign_text": "YIELD",
+    "meaning": "Slow down and give the right of way. Stop if you need to.",
+    "meaning_es": "Reduce la velocidad y cede el paso. Detente si es necesario.",
+    "cue_text": "Yield ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. Who goes first?",
+        "answer_keywords": ["yield", "other", "right of way", "slow"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "speed_limit",
+    "sign_text": "SPEED LIMIT",
+    "meaning": "Do not drive faster than the number on the sign.",
+    "meaning_es": "No conduzcas mas rapido que el numero en el letrero.",
+    "cue_text": "Speed limit.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "You passed this sign. What does the number tell you?",
+        "answer_keywords": ["speed", "limit", "faster", "maximum"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "do_not_enter",
+    "sign_text": "DO NOT ENTER",
+    "meaning": "Do not drive onto this road. It is the wrong way.",
+    "meaning_es": "No entres a esta via. Es el sentido contrario.",
+    "cue_text": "Do not enter.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. Can you turn in here?",
+        "answer_keywords": ["no", "do not", "wrong way", "enter"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "one_way",
+    "sign_text": "ONE WAY",
+    "meaning": "Traffic on this street moves only in the direction of the arrow.",
+    "meaning_es": "El trafico en esta calle va solo en la direccion de la flecha.",
+    "cue_text": "One way street.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "You passed this sign. Which way does traffic go?",
+        "answer_keywords": ["one way", "arrow", "one direction"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "no_left_turn",
+    "sign_text": "NO LEFT TURN",
+    "meaning": "You may not turn left at this intersection.",
+    "meaning_es": "No puedes girar a la izquierda en esta interseccion.",
+    "cue_text": "No left turn.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "You passed this sign. Which turn is not allowed?",
+        "answer_keywords": ["left"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "lane_ends",
+    "sign_text": "LANE ENDS",
+    "meaning": "Your lane is ending. Merge when it is safe.",
+    "meaning_es": "Tu carril termina. Incorporarte cuando sea seguro.",
+    "cue_text": "Lane ends. Merge.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. What should you do?",
+        "answer_keywords": ["merge", "lane ends", "change lane"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "road_work",
+    "sign_text": "ROAD WORK AHEAD",
+    "meaning": "Workers or equipment are ahead. Slow down and watch the lane.",
+    "meaning_es": "Hay obras mas adelante. Reduce la velocidad y mira el carril.",
+    "cue_text": "Road work ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. What is ahead?",
+        "answer_keywords": ["work", "construction", "workers"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "railroad",
+    "sign_text": "RAILROAD CROSSING",
+    "meaning": "Train tracks are ahead. Slow down and be ready to stop.",
+    "meaning_es": "Hay vias de tren mas adelante. Reduce la velocidad y estate listo para detenerte.",
+    "cue_text": "Railroad crossing.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. What crosses the road here?",
+        "answer_keywords": ["train", "railroad", "tracks"]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "school_zone",
+    "sign_text": "SCHOOL",
+    "meaning": "A school is nearby. Slow down and watch for children.",
+    "meaning_es": "Hay una escuela cerca. Reduce la velocidad y cuida a los ninos.",
+    "cue_text": "School zone.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. Why should you slow down?",
+        "answer_keywords": ["school", "children", "kids"]
+      }
+    ],
+    "verified": false
+  }
+]
