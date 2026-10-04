@@ -65,11 +65,21 @@ async def _bridge(path: str, payload: dict | None = None) -> dict:
         encoded = json.dumps(payload).encode() if payload is not None else None
         req = urllib.request.Request(settings.photon_bridge_url.rstrip('/') + path, data=encoded,
               headers={'Authorization': 'Bearer ' + _token(), 'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req, timeout=20) as response:
+        with urllib.request.urlopen(req, timeout=75) as response:
             return json.load(response)
     try:
         return await asyncio.to_thread(request)
-    except (OSError, ValueError, urllib.error.HTTPError) as exc:
+    except urllib.error.HTTPError as exc:
+        try:
+            body=json.load(exc)
+            phase=body.get('phase', 'unknown')
+            code=body.get('code', 'unknown')
+            safe=lambda value: str(value) if str(value).replace('_','').replace('-','').isalnum() and len(str(value)) <= 40 else 'unknown'
+            detail=('Photon denied this recipient. Add the exact approved phone number to this project’s Users list, then restart the bridge.' if code == 'TARGET_NOT_ALLOWED' else f'Photon delivery failed at {safe(phase)} ({safe(code)}). Check Photon line and recipient enrollment.')
+        except (ValueError, OSError):
+            detail=f'Photon bridge returned HTTP {exc.code}.'
+        raise HTTPException(503,detail) from exc
+    except (OSError, ValueError) as exc:
         # Never include provider response bodies or secrets in UI errors.
         raise HTTPException(503, 'Photon bridge unavailable. Start the bridge and check its connection status.') from exc
 
@@ -92,6 +102,10 @@ async def integration_status():
         health = await _bridge('/health')
     except HTTPException as exc:
         return {**_view(), 'status': 'disconnected', 'message': exc.detail}
+    delivery = health.get('delivery') or {}
+    if delivery.get('error_code') == 'TARGET_NOT_ALLOWED':
+        return {**_view(connected=bool(health.get('connected'))), 'status': 'recipient_not_allowed',
+                'message': 'Photon denied the approved recipient. Check the exact phone number in this project’s Users list.'}
     return {**_view(connected=bool(health.get('connected'))),
             'status': health.get('status', 'disconnected'), 'message': health.get('message', '')}
 

@@ -193,3 +193,13 @@ class PhotonTests(unittest.TestCase):
         monkeypatch=self.monkeypatch
         assert photon._image({'thumb_url':'/thumbs/../../.env'}) is None
         assert photon._image({'thumb_url':'https://example.com/sign.jpg'}) is None
+
+    def test_recipient_denied_status_is_actionable(self):
+        async def denied(path,payload=None):
+            return {'connected': True, 'status':'ready',
+                    'delivery': {'phase':'send_text','error_code':'TARGET_NOT_ALLOWED'}}
+        self.monkeypatch.setattr(photon,'_bridge',denied)
+        status=run(photon.integration_status())
+        self.assertEqual(status['status'],'recipient_not_allowed')
+        self.assertIn('exact phone number',status['message'])
+        self.assertTrue(status['connected'])

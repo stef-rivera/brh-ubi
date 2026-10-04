@@ -19,18 +19,30 @@ const canonical = value => value.startsWith('+') ? value.replace(/\D/g,'') : val
 const authorized = value => { const a=Buffer.from(value||''),b=Buffer.from('Bearer '+token); return !!token && a.length===b.length && timingSafeEqual(a,b); };
 let app, connection = {connected:false,status:'needs_setup',message:'Set PHOTON_PROJECT_ID, PHOTON_PROJECT_SECRET, PHOTON_TEST_RECIPIENT and PHOTON_BRIDGE_TOKEN.'};
 let sends = Promise.resolve();
+let delivery={phase:'idle',error_code:null};
+function safeCode(error){if(String(error?.message||'').includes('Target not allowed for this project')) return 'TARGET_NOT_ALLOWED';const value=error?.code ?? error?.status ?? error?.name ?? 'UNKNOWN';return /^[A-Za-z0-9_-]{1,40}$/.test(String(value)) ? String(value) : 'UNKNOWN';}
+const phase=value=>{delivery={phase:value,error_code:null};console.log('Photon delivery phase: '+value);};
 
 async function send(data) {
   if (!connection.connected || !app) throw new Error('Photon SDK is not connected');
   if (canonical(data.recipient || '') !== canonical(recipient)) throw new Error('Recipient is not approved');
   if (!/^[a-zA-Z0-9:_-]{1,150}$/.test(data.idempotency_key||'') || typeof data.text !== 'string' || data.text.length>6000) throw new Error('Invalid message');
   const prior = saved.sends[data.idempotency_key] || {image:false,text:false};
-  if (prior.text) return {accepted:true,duplicate:true};
+  if (prior.text && (!data.image || prior.image)) return {accepted:true,duplicate:true};
   const im = imessage(app);
+  phase('resolve_conversation');
   const space = await im.space.create(await im.user(recipient));
   saved.conversations[space.id] = {session_id:data.session_id, question_index:data.question_index, recipient};
   await persist();
+  if(!prior.text){
+    phase('send_text');
+    await space.send(data.text);
+    prior.text=true;
+    saved.sends[data.idempotency_key]=prior;
+    await persist();
+  }
   if (data.image && !prior.image) {
+    phase('send_image');
     const bytes=Buffer.from(data.image.base64||'', 'base64');
     if(bytes.length>2_000_000 || !['image/png','image/jpeg'].includes(data.image.mimeType)) throw new Error('Invalid thumbnail');
     await space.send(attachment(bytes, {name:data.image.name || 'sign.jpg', mimeType:data.image.mimeType, id:data.idempotency_key+':image'}));
@@ -38,17 +50,14 @@ async function send(data) {
     saved.sends[data.idempotency_key]=prior;
     await persist();
   }
-  await space.send(data.text);
-  prior.text=true;
-  saved.sends[data.idempotency_key]=prior;
-  await persist();
+  phase('delivered');
   return {accepted:true,duplicate:false};
 }
 
 const server=http.createServer(async (req,res)=>{
   const respond=(code,data)=>{res.writeHead(code,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
   if(!authorized(req.headers.authorization)) return respond(401,{error:'Invalid bridge authentication'});
-  if(req.method==='GET' && req.url==='/health') return respond(200,connection);
+  if(req.method==='GET' && req.url==='/health') return respond(200,{...connection,delivery});
   if(req.method!=='POST' || req.url!=='/send') return respond(404,{error:'Not found'});
   try {
     let raw='', size=0;
@@ -57,7 +66,11 @@ const server=http.createServer(async (req,res)=>{
     const pending=sends.then(()=>send(data));
     sends=pending.catch(()=>{});
     respond(200,await pending);
-  } catch { respond(503,{accepted:false,error:'Photon delivery failed; inspect setup and retry.'}); }
+  } catch(error) {
+    delivery={phase:delivery.phase,error_code:safeCode(error)};
+    console.error('Photon delivery failed: phase='+delivery.phase+' code='+delivery.error_code);
+    respond(503,{accepted:false,error:'Photon delivery failed',phase:delivery.phase,code:delivery.error_code});
+  }
 });
 server.listen(Number(process.env.PHOTON_BRIDGE_PORT || 3001),'127.0.0.1',()=>console.log('Photon bridge listening on localhost.'));
 
