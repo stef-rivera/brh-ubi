@@ -35,6 +35,7 @@ def log_detection(row: dict) -> None:
         rows = _read(LOG_PATH)
         rows.append(row)
         _write(LOG_PATH, rows)
+    _enqueue("detection", row)
 
 
 def log_answer(row: dict) -> None:
@@ -42,6 +43,7 @@ def log_answer(row: dict) -> None:
         rows = _read(ANSWERS_PATH)
         rows.append(row)
         _write(ANSWERS_PATH, rows)
+    _enqueue("answer", row)
 
 
 def detections_for(drive_id: str) -> list[dict]:
@@ -61,3 +63,10 @@ def save_detection(row: dict) -> None:
         else:
             rows.append(row)
         _write(LOG_PATH, rows)
+    _enqueue("detection", row)
+
+
+def _enqueue(kind: str, row: dict) -> None:
+    # Lazy import avoids a settings/storage cycle and never waits for the network.
+    from backend.tiger_data import enqueue_event
+    enqueue_event(kind, row)

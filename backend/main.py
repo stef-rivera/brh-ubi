@@ -20,6 +20,8 @@ from backend.config import ROOT, settings
 from backend.chatgpt_routes import router as chatgpt_router
 from backend.events import bus
 from backend.feedback import router as feedback_router
+from backend.tiger_data import router as tiger_router, integration as tiger_integration
+from backend.photon import router as photon_router
 from backend.practice import build_session, current_question, submit
 from backend.state import state
 from backend.tts import speak
@@ -49,13 +51,19 @@ def _stop_pipeline() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     bus.bind(asyncio.get_running_loop())
-    yield
-    _stop_pipeline()
+    tiger_integration.start()
+    try:
+        yield
+    finally:
+        _stop_pipeline()
+        tiger_integration.stop()
 
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(chatgpt_router)
 app.include_router(feedback_router)
+app.include_router(tiger_router)
+app.include_router(photon_router)
 app.mount("/thumbs", StaticFiles(directory=str(THUMBS)), name="thumbs")
 app.mount("/audio", StaticFiles(directory=str(AUDIO)), name="audio")
 app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")

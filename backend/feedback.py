@@ -285,6 +285,8 @@ def apply_feedback(body):
             state.practice_items = build_session(state.detections)
             state.practice_index = 0
     save_detection(reviewed)
+    from backend.tiger_data import enqueue_event
+    enqueue_event('review', feedback)
     bus.publish({'type': 'detection_update', **reviewed})
     bus.publish({'type': 'feedback_saved', **feedback})
     question = None

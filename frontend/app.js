@@ -1010,3 +1010,56 @@ function beginCoach(voice, stream) {
     }
   };
 }
+
+// Sponsor additions stay outside the live detection and speech path.
+const historyPanel = document.querySelector('#history-panel');
+const historyToggle = document.querySelector('#history-toggle');
+function setHistoryOpen(open) {
+  historyPanel.hidden = !open;
+  historyToggle.setAttribute('aria-expanded', String(open));
+  if (open) loadProgress();
+}
+async function loadProgress() {
+  const status = document.querySelector('#history-status');
+  const content = document.querySelector('#history-content');
+  status.textContent = 'Loading your learning history…';
+  try {
+    const data = await apiJSON('/api/progress');
+    status.textContent = data.backend === 'tiger' ? `Tiger Data connected · ${data.events_synced || 0} events synced` : 'Local history · Tiger Data sync is not connected yet';
+    if (data.pending) status.textContent += ` · ${data.pending} events waiting to sync`;
+    const accuracy = data.answers ? `${Math.round((data.accuracy || 0) * 100)}%` : '—';
+    const difficulties = data.struggling_signs || [];
+    const sessions = data.recent_sessions || [];
+    content.innerHTML = `<div class="history-metrics"><div><strong>${escapeHTML(data.sessions || 0)}</strong><span>Recorded drives</span></div><div><strong>${escapeHTML(data.answers || 0)}</strong><span>Scored answers</span></div><div><strong>${escapeHTML(accuracy)}</strong><span>Correct answers</span></div></div><h3>Signs to practice</h3>`;
+    const list = document.createElement('ul'); list.className = 'history-list';
+    for (const sign of difficulties.slice(0,5)) {
+      const item = document.createElement('li');
+      item.textContent = `${sign.sign_text || (sign.sign_id || 'Sign').replaceAll('_',' ')} · ${sign.incorrect || sign.missed || 0} missed answer(s)`;
+      list.append(item);
+    }
+    if (!difficulties.length) {const item = document.createElement('li');item.textContent='No missed answers recorded yet.'; list.append(item);}
+    content.append(list);
+    if (sessions.length) {
+      const heading = document.createElement('h3');heading.textContent='Recent practice';content.append(heading);
+      const recent = document.createElement('ul');recent.className='history-list';
+      for (const session of sessions.slice(0,5)) {const item=document.createElement('li');item.textContent=`${session.drive_id || 'Drive'} · ${session.answers || session.total || 0} answer(s)`;recent.append(item);}
+      content.append(recent);
+    }
+  } catch (error) {status.textContent=error.message;content.replaceChildren();}
+}
+historyToggle.addEventListener('click', () => setHistoryOpen(historyPanel.hidden));
+document.querySelector('#history-close').addEventListener('click', () => {setHistoryOpen(false);historyToggle.focus();});
+document.querySelector('#history-refresh').addEventListener('click', loadProgress);
+document.addEventListener('keydown', event => {if(event.key==='Escape') setHistoryOpen(false);});
+document.querySelector('#photon-start').addEventListener('click', async () => {
+  const button=document.querySelector('#photon-start');const status=document.querySelector('#photon-status');
+  if(currentMode!=='parked') {status.textContent='Park before starting iMessage practice.';return;}
+  button.disabled=true;status.textContent='Starting your iMessage quiz…';
+  try {
+    const data=await apiJSON('/api/photon/practice/start',{drive_id:activeDriveId});
+    if(data.error || ['unavailable','error','not_configured'].includes(data.status)) throw new Error(data.error || data.message || 'Configure Photon before starting iMessage practice.');
+    coachGeneration++;stopCoach();parkVoicePending=false;clearCues();
+    status.textContent=data.message || `iMessage practice started · ${data.total || 0} signs. Check your messages.`;
+  } catch(error) {status.textContent=error.message;}
+  finally {button.disabled=false;}
+});

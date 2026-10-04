@@ -195,3 +195,14 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 .feedback-note { color: var(--muted); font-size: 12px; margin: 0; }
 .replay { margin-top: 8px; font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { .card.cue-highlight { animation: none; } }
+
+#history-toggle { position: fixed; right: 126px; top: 18px; z-index: 5; }
+#history-panel { position: fixed; inset: 80px auto auto 50%; transform: translateX(-50%); width: min(640px, calc(100% - 32px)); max-height: calc(100vh - 100px); overflow-y: auto; padding: 24px; background: rgba(18,20,15,.98); border: 1px solid var(--line); border-radius: 20px; z-index: 7; box-shadow: 0 20px 80px #000a; }
+.history-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+.history-metrics div { padding: 16px 12px; border: 1px solid var(--line); border-radius: 12px; }
+.history-metrics strong { display: block; font-size: 28px; }
+.history-metrics span { color: var(--muted); font-size: 13px; }
+.history-list { padding-left: 20px; font-size: 15px; }
+.history-list li { margin: 10px 0; }
+.photon-practice { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+@media (max-width: 600px) { #history-toggle { right: 116px; top: 16px; } .history-metrics { gap: 6px; } .history-metrics strong { font-size: 24px; } }
