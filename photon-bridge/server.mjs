@@ -4,6 +4,7 @@ import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { Spectrum, attachment } from 'spectrum-ts';
 import { imessage } from 'spectrum-ts/providers/imessage';
+import {resolveSpace,safeDiagnostic} from './routing.mjs';
 
 const token = process.env.PHOTON_BRIDGE_TOKEN || '';
 const recipient = process.env.PHOTON_TEST_RECIPIENT || '';
@@ -14,6 +15,8 @@ const storeDir = fileURLToPath(new URL('../.local/photon/', import.meta.url));
 const storePath = storeDir + 'bridge.json';
 let saved = { sends: {}, conversations: {} };
 try { saved = JSON.parse(await readFile(storePath, 'utf8')); } catch {}
+saved.routes ||= {};
+const inboundSpaces=new Map();
 const persist = async () => { await mkdir(storeDir, {recursive:true}); await writeFile(storePath+'.tmp', JSON.stringify(saved)); await rename(storePath+'.tmp',storePath); };
 const canonical = value => value.startsWith('+') ? value.replace(/\D/g,'') : value.toLowerCase();
 const authorized = value => { const a=Buffer.from(value||''),b=Buffer.from('Bearer '+token); return !!token && a.length===b.length && timingSafeEqual(a,b); };
@@ -31,7 +34,7 @@ async function send(data) {
   if (prior.text && (!data.image || prior.image)) return {accepted:true,duplicate:true};
   const im = imessage(app);
   phase('resolve_conversation');
-  const space = await im.space.create(await im.user(recipient));
+  const space = await resolveSpace(im,recipient,inboundSpaces,saved.routes,canonical);
   saved.conversations[space.id] = {session_id:data.session_id, question_index:data.question_index, recipient};
   await persist();
   if(!prior.text){
@@ -68,7 +71,7 @@ const server=http.createServer(async (req,res)=>{
     respond(200,await pending);
   } catch(error) {
     delivery={phase:delivery.phase,error_code:safeCode(error)};
-    console.error('Photon delivery failed: phase='+delivery.phase+' code='+delivery.error_code);
+    console.error('Photon delivery failed: phase='+delivery.phase+' code='+delivery.error_code,JSON.stringify(safeDiagnostic(error,[token,projectSecret,projectId,recipient])));
     respond(503,{accepted:false,error:'Photon delivery failed',phase:delivery.phase,code:delivery.error_code});
   }
 });
@@ -83,8 +86,12 @@ async function connect(){
     for await(const [space,message] of app.messages){
       if(message.platform!=='imessage' || message.sender?.kind==='agent' || message.content?.type!=='text') continue;
       const sender=message.sender?.id || message.sender?.address || '';
-      const conversation=saved.conversations[space.id];
-      if(!conversation || canonical(sender)!==canonical(recipient)) continue;
+      if(canonical(sender)!==canonical(recipient)) continue;
+      inboundSpaces.set(canonical(sender),space);
+      saved.routes[canonical(sender)]={id:space.id,phone:space.phone,type:space.type};
+      await persist();
+      const conversation=saved.conversations[space.id] || Object.values(saved.conversations).find(row=>canonical(row.recipient)===canonical(sender));
+      if(!conversation) continue;
       const payload={...conversation, sender, message_id:message.id,answer:message.content.text};
       // Transport retries preserve message ID; backend grades each answer once.
       for(let attempt=0;attempt<5;attempt++){

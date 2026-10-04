@@ -49,3 +49,16 @@ test('real SDK bridge startup, authentication and honest missing setup', {timeou
     child.stdout.destroy();child.stderr.destroy();
   }
 });
+
+
+test('native inbound routing is preferred and survives as an explicit stored route',async()=>{
+  const {resolveSpace,safeDiagnostic}=await import('./routing.mjs');
+  const native={id:'native-id',phone:'shared',send(){}};
+  const im={space:{create:async()=>{throw Error('should not synthesize');},get:async(id,params)=>({id,params})},user:async()=>{throw Error('should not resolve user');}};
+  const canon=value=>value;
+  assert.equal(await resolveSpace(im,'approved',new Map([['approved',native]]),{},canon),native);
+  assert.deepEqual(await resolveSpace(im,'approved',new Map(),{approved:{id:'native-id',phone:'shared'}},canon),{id:'native-id',params:{phone:'shared'}});
+  const safe=safeDiagnostic({message:'secret-value +15551234567 a@example.com',cause:{message:'secret-value'}},['secret-value']);
+  assert.ok(!JSON.stringify(safe).includes('secret-value'));
+  assert.ok(!JSON.stringify(safe).includes('15551234567'));
+});
