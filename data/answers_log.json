@@ -34,5 +34,278 @@
     "answer": "stop completely",
     "grade": "partial",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T01:49:07.798730+00:00",
+    "drive_id": "2026-10-03T21-46-49",
+    "sign_id": "no_left_turn",
+    "question": "You passed this sign. Which turn is not allowed?",
+    "answer": "left",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:39.870485+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "Watch for school children",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:53.739185+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "No, do not turn on red",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:58.780861+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "road_work",
+    "question": "You passed this sign. What is ahead?",
+    "answer": "Construction workers and road work",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:06:04.038647+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "Pedestrians and bicycles",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:06:08.643198+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "speed_limit",
+    "question": "What maximum speed, in miles per hour, is shown on this sign?",
+    "answer": "40",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:04.735268+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "A school is nearby. Watch for children.",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:12.099278+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "People walking and riding bicycles.",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:19.243134+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "speed_limit",
+    "question": "What maximum speed, in miles per hour, is shown on this sign?",
+    "answer": "40 miles per hour.",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:08:20.357748+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "school zone",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:08.025681+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "no turn on red",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:13.249903+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "road_work",
+    "question": "You passed this sign. What is ahead?",
+    "answer": "do not enter",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:16.250170+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "kids",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:22.755628+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "yield",
+    "question": "You passed this sign. Who goes first?",
+    "answer": "them, because of yield",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:10:26.397295+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "kids",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:11:22.195863+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "watch for children",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:11:27.904544+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "yes absolutely",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:13:55.979616+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "kids",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:14:08.400217+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "school zone",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:14:15.733620+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "no",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T10:06:41.248485+00:00",
+    "drive_id": "2026-10-04T06-05-04",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "no u turn",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T10:50:45.258801+00:00",
+    "drive_id": "2026-10-04T06-49-06",
+    "event_id": "2026-10-04T06-49-06:4:66",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "Hi",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "822ffa6940c14137b1527f4d23bcdac6",
+    "message_id": "spc-msg-e90d6315-31a8-4ff1-8d04-b7d3826297af"
+  },
+  {
+    "ts": "2026-10-04T10:51:40.554711+00:00",
+    "drive_id": "2026-10-04T06-49-06",
+    "event_id": "2026-10-04T06-49-06:100001:66",
+    "sign_id": "do_not_enter",
+    "question": "You passed this sign. Can you turn in here?",
+    "answer": "No",
+    "grade": "partial",
+    "channel": "photon",
+    "session_id": "822ffa6940c14137b1527f4d23bcdac6",
+    "message_id": "spc-msg-42b182d7-adc9-43dd-81f0-8fd969864cbc"
+  },
+  {
+    "ts": "2026-10-04T10:55:03.187176+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:4:66",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "I can enter therr",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-8781fe02-21f5-4c59-aba4-1b5d25f28949"
+  },
+  {
+    "ts": "2026-10-04T10:55:19.321032+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:100001:66",
+    "sign_id": "do_not_enter",
+    "question": "You passed this sign. Can you turn in here?",
+    "answer": "Moving",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-e1e2e664-58d3-419f-911b-02ce6dc55be1"
+  },
+  {
+    "ts": "2026-10-04T10:55:37.332245+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:112:9100",
+    "sign_id": "lane_ends",
+    "question": "You passed this sign. What should you do?",
+    "answer": "Idk",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-772e08de-ad4a-4c29-bfef-e94802baa7a8"
+  },
+  {
+    "ts": "2026-10-04T10:55:47.634897+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:100022:12500",
+    "sign_id": "merge",
+    "question": "What happens to traffic ahead?",
+    "answer": "Merge",
+    "grade": "correct",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-70b8ef7c-905c-4191-83f3-9f9e8017500f"
+  },
+  {
+    "ts": "2026-10-04T10:55:57.109072+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:3:66",
+    "sign_id": "freeway_entrance",
+    "question": "Where does this entrance lead?",
+    "answer": "Freeway",
+    "grade": "correct",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-ecdb8b06-f4db-43bf-a2ce-b3b9e2d2840e"
   }
 ]

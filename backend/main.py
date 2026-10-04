@@ -5,6 +5,10 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.local_vision import LocalDetector
 
 import cv2
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -13,11 +17,15 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.config import ROOT, settings
-from backend.detector import GeminiDetector
+from backend.chatgpt_routes import router as chatgpt_router
 from backend.events import bus
+from backend.feedback import router as feedback_router
+from backend.tiger_data import router as tiger_router, integration as tiger_integration
+from backend.photon import router as photon_router
 from backend.practice import build_session, current_question, submit
 from backend.state import state
 from backend.tts import speak
+from backend.voice_coach import mint_voice_session
 from backend.video import VideoSource
 
 FRONTEND = ROOT / "frontend"
@@ -27,7 +35,7 @@ THUMBS.mkdir(parents=True, exist_ok=True)
 AUDIO.mkdir(parents=True, exist_ok=True)
 
 video: VideoSource | None = None
-detector: GeminiDetector | None = None
+detector: LocalDetector | None = None
 
 
 def _stop_pipeline() -> None:
@@ -43,11 +51,19 @@ def _stop_pipeline() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     bus.bind(asyncio.get_running_loop())
-    yield
-    _stop_pipeline()
+    tiger_integration.start()
+    try:
+        yield
+    finally:
+        _stop_pipeline()
+        tiger_integration.stop()
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(chatgpt_router)
+app.include_router(feedback_router)
+app.include_router(tiger_router)
+app.include_router(photon_router)
 app.mount("/thumbs", StaticFiles(directory=str(THUMBS)), name="thumbs")
 app.mount("/audio", StaticFiles(directory=str(AUDIO)), name="audio")
 app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")
@@ -55,6 +71,9 @@ app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")
 
 class StartBody(BaseModel):
     source: str = "file"
+    detector: str = "local"
+    model: str = ""
+    cloud_assist: bool = False
 
 
 class AnswerBody(BaseModel):
@@ -68,7 +87,10 @@ class SpeakBody(BaseModel):
 def _resolve_source(choice: str):
     if choice == "webcam":
         return 0
-    path = ROOT / settings.video_path
+    clips = {"day": "data/drive.mp4", "night": "data/night-drive.mp4"}
+    if choice not in ("file", "day", "night"):
+        raise HTTPException(400, "Choose the day or night demo clip.")
+    path = ROOT / clips.get(choice, settings.video_path)
     if not path.exists():
         raise FileNotFoundError(
             f"No video at {path}. Add a dashcam clip there, or start with the webcam."
@@ -89,11 +111,12 @@ def api_state():
 @app.post("/api/drive/start")
 def start_drive(body: StartBody):
     global video, detector
+    if body.detector != "local" or body.cloud_assist:
+        raise HTTPException(400, "Live sign recognition runs locally. Cloud recognition is disabled.")
     _stop_pipeline()
     try:
         source = _resolve_source(body.source)
         video = VideoSource(source)
-        video.start()
     except (FileNotFoundError, RuntimeError) as exc:
         video = None
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -101,14 +124,50 @@ def start_drive(body: StartBody):
     with state.lock:
         state.mode = "driving"
         state.drive_id = drive_id
-        state.detector = "gemini"
+        state.detector = body.detector
+        state.detection_status = "running"
+        state.detection_error = ""
         state.source = body.source
+        state.pipeline_metrics = {}
         state.detections = []
         state.practice_items = []
         state.practice_index = 0
-    detector = GeminiDetector(video)
-    detector.start()
-    event = {"type": "state", "mode": "driving", "detector": "gemini", "drive_id": drive_id}
+    try:
+        from backend.local_vision import LocalDetector
+        detector = LocalDetector(video)
+        video.start()
+        detector.start()
+    except Exception as exc:
+        _stop_pipeline()
+        with state.lock:
+            state.mode = "idle"
+            state.detection_status = "error"
+        raise HTTPException(400, "Could not start local vision. Run the local setup script and check the server log.") from exc
+    event = {"type": "state", "mode": "driving", "detector": state.detector, "drive_id": drive_id}
+    bus.publish(event)
+    return event
+
+
+@app.post("/api/drive/pause")
+def pause_drive():
+    if video is None or state.mode != "driving":
+        raise HTTPException(400, "Start a drive before pausing.")
+    video.pause()
+    with state.lock:
+        state.mode = "paused"
+    event = {"type": "state", "mode": "paused", "drive_id": state.drive_id}
+    bus.publish(event)
+    return event
+
+
+@app.post("/api/drive/resume")
+def resume_drive():
+    if video is None or state.mode != "paused":
+        raise HTTPException(400, "Pause a drive before resuming.")
+    video.resume()
+    with state.lock:
+        state.mode = "driving"
+    event = {"type": "state", "mode": "driving", "drive_id": state.drive_id}
     bus.publish(event)
     return event
 
@@ -123,7 +182,7 @@ def park():
         state.practice_index = 0
         state.mode = "parked"
         drive_id = state.drive_id
-    event = {"type": "state", "mode": "parked", "detector": "gemini", "drive_id": drive_id}
+    event = {"type": "state", "mode": "parked", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
     question = current_question()
     if question is None:
@@ -132,6 +191,18 @@ def park():
         return {"state": event, "next": done}
     bus.publish(question)
     return {"state": event, "next": question}
+
+
+@app.post("/api/practice/voice")
+def practice_voice():
+    with state.lock:
+        if state.mode != "parked":
+            raise HTTPException(400, "Park before starting voice practice.")
+        detections = [dict(row) for row in state.detections]
+    try:
+        return {"voice": mint_voice_session(detections)}
+    except Exception:
+        raise HTTPException(503, "Voice coach unavailable. Configure XAI_API_KEY or use typing.")
 
 
 @app.post("/api/practice/answer")
@@ -159,7 +230,7 @@ def resume():
     with state.lock:
         state.mode = "driving"
         drive_id = state.drive_id
-    event = {"type": "state", "mode": "driving", "detector": "gemini", "drive_id": drive_id}
+    event = {"type": "state", "mode": "driving", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
     return event
 
@@ -194,6 +265,9 @@ async def _frames():
             payload = blank
         else:
             frame, _ts = item
+            current_detector = detector
+            if current_detector is not None:
+                frame = current_detector.annotate(frame, _ts)
             ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
             payload = buf.tobytes() if ok else b""
         yield (

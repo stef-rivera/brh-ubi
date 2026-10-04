@@ -1,0 +1,81 @@
+{
+  "selection": "LISA47 YOLOv8m, best practical evaluated public US checkpoint, not globally proven best",
+  "revision": "ea6e5cc214bbe5b3ab406f141c3d67e307ccafbc",
+  "sources": [
+    {
+      "url": "https://github.com/ali-haidous/yolo_trafficsign",
+      "evidence": "Checkpoint actually available and restricted-loaded; 47 names inspected, fullframe school/speed benchmark verified. README metrics remain author claims."
+    },
+    {
+      "url": "https://cvrr.ucsd.edu/lisa-traffic-signs-dataset",
+      "evidence": "Official US47 dataset with academic license; not comprehensive modern US manual."
+    },
+    {
+      "url": "https://huggingface.co/cvtechniques/JC-Traffic-Sign-Detection",
+      "evidence": "Actual21-class v11/v26 weights evaluated; narrower coverage. v11 wrong45 firstchoice on second40."
+    },
+    {
+      "url": "https://arxiv.org/abs/1909.04422",
+      "evidence": "Mapillary broad world dataset; no compatible verified broadUS checkpoint selected in this evaluation."
+    }
+  ],
+  "coverage_limitations": [
+    "Road work absent from LISA47 weights",
+    "No turn on red absent from LISA47 weights",
+    "Combined bicycle/pedestrian absent; genericpedestrian only; narrowlocalCLIPfallback preserved"
+  ],
+  "licensing": {
+    "model_repository": "MIT stated at repo level; dataset terms distinct",
+    "training_dataset": "Official LISA academic license; commercialclearance notverified",
+    "framework": "Ultralytics license distinct; reviewbeforecommercialdeployment"
+  },
+  "actual_class_names": {
+    "0": "addedLane",
+    "1": "curveLeft",
+    "2": "curveRight",
+    "3": "dip",
+    "4": "doNotEnter",
+    "5": "doNotPass",
+    "6": "intersection",
+    "7": "keepRight",
+    "8": "laneEnds",
+    "9": "merge",
+    "10": "noLeftTurn",
+    "11": "noRightTurn",
+    "12": "pedestrianCrossing",
+    "13": "rampSpeedAdvisory20",
+    "14": "rampSpeedAdvisory35",
+    "15": "rampSpeedAdvisory40",
+    "16": "rampSpeedAdvisory45",
+    "17": "rampSpeedAdvisory50",
+    "18": "rampSpeedAdvisoryUrdbl",
+    "19": "rightLaneMustTurn",
+    "20": "roundabout",
+    "21": "school",
+    "22": "schoolSpeedLimit25",
+    "23": "signalAhead",
+    "24": "slow",
+    "25": "speedLimit15",
+    "26": "speedLimit25",
+    "27": "speedLimit30",
+    "28": "speedLimit35",
+    "29": "speedLimit40",
+    "30": "speedLimit45",
+    "31": "speedLimit50",
+    "32": "speedLimit55",
+    "33": "speedLimit65",
+    "34": "speedLimitUrdbl",
+    "35": "stop",
+    "36": "stopAhead",
+    "37": "thruMergeLeft",
+    "38": "thruMergeRight",
+    "39": "thruTrafficMergeLeft",
+    "40": "truckSpeedLimit55",
+    "41": "turnLeft",
+    "42": "turnRight",
+    "43": "yield",
+    "44": "yieldAhead",
+    "45": "zoneAhead25",
+    "46": "zoneAhead45"
+  }
+}

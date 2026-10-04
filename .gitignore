@@ -11,3 +11,9 @@ data/thumbs/
 data/audio/*.mp3
 data/weights/
 *.pt
+
+.local/
+
+.venv-local/
+
+node_modules/

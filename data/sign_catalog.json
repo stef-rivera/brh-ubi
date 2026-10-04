@@ -9,7 +9,10 @@
     "questions": [
       {
         "q": "You passed this sign. What must you do?",
-        "answer_keywords": ["stop", "complete stop"]
+        "answer_keywords": [
+          "stop",
+          "complete stop"
+        ]
       }
     ],
     "verified": false
@@ -24,7 +27,12 @@
     "questions": [
       {
         "q": "You passed this sign. Who goes first?",
-        "answer_keywords": ["yield", "other", "right of way", "slow"]
+        "answer_keywords": [
+          "yield",
+          "other",
+          "right of way",
+          "slow"
+        ]
       }
     ],
     "verified": false
@@ -39,7 +47,12 @@
     "questions": [
       {
         "q": "You passed this sign. What does the number tell you?",
-        "answer_keywords": ["speed", "limit", "faster", "maximum"]
+        "answer_keywords": [
+          "speed",
+          "limit",
+          "faster",
+          "maximum"
+        ]
       }
     ],
     "verified": false
@@ -54,7 +67,12 @@
     "questions": [
       {
         "q": "You passed this sign. Can you turn in here?",
-        "answer_keywords": ["no", "do not", "wrong way", "enter"]
+        "answer_keywords": [
+          "no",
+          "do not",
+          "wrong way",
+          "enter"
+        ]
       }
     ],
     "verified": false
@@ -69,7 +87,11 @@
     "questions": [
       {
         "q": "You passed this sign. Which way does traffic go?",
-        "answer_keywords": ["one way", "arrow", "one direction"]
+        "answer_keywords": [
+          "one way",
+          "arrow",
+          "one direction"
+        ]
       }
     ],
     "verified": false
@@ -84,7 +106,9 @@
     "questions": [
       {
         "q": "You passed this sign. Which turn is not allowed?",
-        "answer_keywords": ["left"]
+        "answer_keywords": [
+          "left"
+        ]
       }
     ],
     "verified": false
@@ -99,7 +123,11 @@
     "questions": [
       {
         "q": "You passed this sign. What should you do?",
-        "answer_keywords": ["merge", "lane ends", "change lane"]
+        "answer_keywords": [
+          "merge",
+          "lane ends",
+          "change lane"
+        ]
       }
     ],
     "verified": false
@@ -114,7 +142,11 @@
     "questions": [
       {
         "q": "You passed this sign. What is ahead?",
-        "answer_keywords": ["work", "construction", "workers"]
+        "answer_keywords": [
+          "work",
+          "construction",
+          "workers"
+        ]
       }
     ],
     "verified": false
@@ -129,7 +161,11 @@
     "questions": [
       {
         "q": "You passed this sign. What crosses the road here?",
-        "answer_keywords": ["train", "railroad", "tracks"]
+        "answer_keywords": [
+          "train",
+          "railroad",
+          "tracks"
+        ]
       }
     ],
     "verified": false
@@ -144,7 +180,634 @@
     "questions": [
       {
         "q": "You passed this sign. Why should you slow down?",
-        "answer_keywords": ["school", "children", "kids"]
+        "answer_keywords": [
+          "school",
+          "children",
+          "kids"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "bicycle_pedestrian_crossing",
+    "sign_text": "BICYCLE AND PEDESTRIAN CROSSING",
+    "meaning": "A bicycle and pedestrian crossing is ahead. Watch for people walking or riding bicycles.",
+    "meaning_es": "Hay un cruce de bicicletas y peatones m\u00e1s adelante. Presta atenci\u00f3n a las personas que caminan o van en bicicleta.",
+    "cue_text": "Bicycle and pedestrian crossing sign detected.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Who should you watch for near this crossing?",
+        "answer_keywords": [
+          "pedestrians",
+          "people walking",
+          "bicycles",
+          "cyclists",
+          "bikes"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "no_turn_on_red",
+    "sign_text": "NO TURN ON RED",
+    "meaning": "Do not turn while the traffic signal is red.",
+    "meaning_es": "No gires mientras el sem\u00e1foro est\u00e9 en rojo.",
+    "cue_text": "No turn on red sign detected.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Can you turn while the traffic signal is red at this sign?",
+        "answer_keywords": [
+          "no",
+          "do not",
+          "cannot",
+          "wait",
+          "green"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "added_lane",
+    "sign_text": "ADDED LANE",
+    "meaning": "An additional lane begins ahead.",
+    "meaning_es": "Comienza un carril adicional.",
+    "cue_text": "Added lane.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What changes ahead?",
+        "answer_keywords": [
+          "lane",
+          "additional"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "curve_left",
+    "sign_text": "CURVE LEFT",
+    "meaning": "The road curves left ahead.",
+    "meaning_es": "La carretera gira hacia la izquierda.",
+    "cue_text": "Curve left.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction does the road curve?",
+        "answer_keywords": [
+          "left"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "curve_right",
+    "sign_text": "CURVE RIGHT",
+    "meaning": "The road curves right ahead.",
+    "meaning_es": "La carretera gira hacia la derecha.",
+    "cue_text": "Curve right.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction does the road curve?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "dip",
+    "sign_text": "DIP",
+    "meaning": "A dip in the road is ahead.",
+    "meaning_es": "Hay un desnivel en la carretera.",
+    "cue_text": "Dip.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What road condition is ahead?",
+        "answer_keywords": [
+          "dip"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "do_not_pass",
+    "sign_text": "DO NOT PASS",
+    "meaning": "Passing is prohibited here.",
+    "meaning_es": "No se permite adelantar aqu\u00ed.",
+    "cue_text": "Do not pass.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Can you pass another vehicle here?",
+        "answer_keywords": [
+          "no",
+          "not"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "intersection",
+    "sign_text": "INTERSECTION AHEAD",
+    "meaning": "An intersection is ahead.",
+    "meaning_es": "Hay una intersecci\u00f3n m\u00e1s adelante.",
+    "cue_text": "Intersection ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What is ahead?",
+        "answer_keywords": [
+          "intersection"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "keep_right",
+    "sign_text": "KEEP RIGHT",
+    "meaning": "The sign directs traffic to keep right.",
+    "meaning_es": "El letrero indica mantenerse a la derecha.",
+    "cue_text": "Keep right.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which side does this sign indicate?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "merge",
+    "sign_text": "MERGE",
+    "meaning": "Traffic merges ahead.",
+    "meaning_es": "El tr\u00e1fico se incorpora m\u00e1s adelante.",
+    "cue_text": "Merge.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What happens to traffic ahead?",
+        "answer_keywords": [
+          "merge"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "no_right_turn",
+    "sign_text": "NO RIGHT TURN",
+    "meaning": "A right turn is prohibited.",
+    "meaning_es": "No se permite girar a la derecha.",
+    "cue_text": "No right turn.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which turn is prohibited?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "pedestrian_crossing",
+    "sign_text": "PEDESTRIAN CROSSING",
+    "meaning": "A pedestrian crossing is ahead.",
+    "meaning_es": "Hay un cruce peatonal m\u00e1s adelante.",
+    "cue_text": "Pedestrian crossing.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Who may cross here?",
+        "answer_keywords": [
+          "pedestrian",
+          "people",
+          "walking"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "ramp_speed_advisory",
+    "sign_text": "RAMP ADVISORY SPEED",
+    "meaning": "The number recommends a speed for the ramp; it is an advisory speed.",
+    "meaning_es": "El n\u00famero recomienda una velocidad para la rampa.",
+    "cue_text": "Ramp advisory speed.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Is this a recommended ramp speed or a posted speed limit?",
+        "answer_keywords": [
+          "recommended",
+          "advisory"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "right_lane_must_turn",
+    "sign_text": "RIGHT LANE MUST TURN",
+    "meaning": "Traffic in the right lane must turn in the indicated direction.",
+    "meaning_es": "El tr\u00e1fico del carril derecho debe girar en la direcci\u00f3n indicada.",
+    "cue_text": "Right lane must turn.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which lane must turn?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "roundabout",
+    "sign_text": "ROUNDABOUT AHEAD",
+    "meaning": "A roundabout is ahead.",
+    "meaning_es": "Hay una rotonda m\u00e1s adelante.",
+    "cue_text": "Roundabout ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What junction is ahead?",
+        "answer_keywords": [
+          "roundabout"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "school_speed_limit",
+    "sign_text": "SCHOOL SPEED LIMIT",
+    "meaning": "The posted number is a school speed limit; read the sign for when it applies.",
+    "meaning_es": "El n\u00famero indica un l\u00edmite escolar; lee cu\u00e1ndo se aplica.",
+    "cue_text": "School speed limit.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What kind of speed limit is this?",
+        "answer_keywords": [
+          "school"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "signal_ahead",
+    "sign_text": "SIGNAL AHEAD",
+    "meaning": "A traffic signal is ahead.",
+    "meaning_es": "Hay un sem\u00e1foro m\u00e1s adelante.",
+    "cue_text": "Signal ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What is ahead?",
+        "answer_keywords": [
+          "signal",
+          "light"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "slow",
+    "sign_text": "SLOW",
+    "meaning": "This sign indicates slower travel.",
+    "meaning_es": "Este letrero indica reducir la velocidad.",
+    "cue_text": "Slow.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What does this sign indicate?",
+        "answer_keywords": [
+          "slow"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "stop_ahead",
+    "sign_text": "STOP AHEAD",
+    "meaning": "A stop sign is ahead.",
+    "meaning_es": "Hay una se\u00f1al de alto m\u00e1s adelante.",
+    "cue_text": "Stop ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What sign is ahead?",
+        "answer_keywords": [
+          "stop"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "thru_merge_left",
+    "sign_text": "LANES MERGE LEFT",
+    "meaning": "Through lanes merge toward the left.",
+    "meaning_es": "Los carriles se unen hacia la izquierda.",
+    "cue_text": "Lanes merge left.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction do lanes merge?",
+        "answer_keywords": [
+          "left"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "thru_merge_right",
+    "sign_text": "LANES MERGE RIGHT",
+    "meaning": "Through lanes merge toward the right.",
+    "meaning_es": "Los carriles se unen hacia la derecha.",
+    "cue_text": "Lanes merge right.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction do lanes merge?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "thru_traffic_merge_left",
+    "sign_text": "THROUGH TRAFFIC MERGE LEFT",
+    "meaning": "Through traffic is directed to merge left.",
+    "meaning_es": "El tr\u00e1fico debe incorporarse hacia la izquierda.",
+    "cue_text": "Through traffic merge left.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction does through traffic merge?",
+        "answer_keywords": [
+          "left"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "turn_left",
+    "sign_text": "LEFT TURN AHEAD",
+    "meaning": "The road makes a left turn ahead.",
+    "meaning_es": "La carretera gira a la izquierda m\u00e1s adelante.",
+    "cue_text": "Left turn ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction is the turn?",
+        "answer_keywords": [
+          "left"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "turn_right",
+    "sign_text": "RIGHT TURN AHEAD",
+    "meaning": "The road makes a right turn ahead.",
+    "meaning_es": "La carretera gira a la derecha m\u00e1s adelante.",
+    "cue_text": "Right turn ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which direction is the turn?",
+        "answer_keywords": [
+          "right"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "truck_speed_limit",
+    "sign_text": "TRUCK SPEED LIMIT",
+    "meaning": "The number is the posted speed limit for trucks.",
+    "meaning_es": "El n\u00famero es el l\u00edmite de velocidad para camiones.",
+    "cue_text": "Truck speed limit.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which vehicles does this speed limit name?",
+        "answer_keywords": [
+          "truck"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "yield_ahead",
+    "sign_text": "YIELD AHEAD",
+    "meaning": "A yield sign is ahead.",
+    "meaning_es": "Hay una se\u00f1al de ceda el paso m\u00e1s adelante.",
+    "cue_text": "Yield ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What sign is ahead?",
+        "answer_keywords": [
+          "yield"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "speed_zone_ahead",
+    "sign_text": "SPEED ZONE AHEAD",
+    "meaning": "A speed zone begins ahead; read the number shown.",
+    "meaning_es": "Comienza una zona de velocidad; lee el n\u00famero.",
+    "cue_text": "Speed zone ahead.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What changes ahead?",
+        "answer_keywords": [
+          "speed",
+          "zone"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "deer_crossing",
+    "sign_text": "DEER CROSSING",
+    "meaning": "Deer may cross the road in this area.",
+    "meaning_es": "Los venados pueden cruzar la carretera.",
+    "cue_text": "Deer crossing.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What animals may cross here?",
+        "answer_keywords": [
+          "deer"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "freeway_entrance",
+    "sign_text": "FREEWAY ENTRANCE",
+    "meaning": "This sign identifies a freeway entrance.",
+    "meaning_es": "Este letrero identifica una entrada a la autopista.",
+    "cue_text": "Freeway entrance.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "Where does this entrance lead?",
+        "answer_keywords": [
+          "freeway",
+          "highway"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "guide_sign",
+    "sign_text": "DIRECTION / DESTINATION",
+    "meaning": "This sign gives route, destination, or exit information.",
+    "meaning_es": "Este letrero da informaci\u00f3n de rutas, destinos o salidas.",
+    "cue_text": "Direction / destination.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "What kind of information does this sign give?",
+        "answer_keywords": [
+          "route",
+          "direction",
+          "destination",
+          "exit"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "left_turn_only",
+    "sign_text": "LEFT TURN ONLY",
+    "meaning": "This lane is designated for left turns.",
+    "meaning_es": "Este carril es solo para girar a la izquierda.",
+    "cue_text": "Left turn only.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Which turn is this lane for?",
+        "answer_keywords": [
+          "left"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "services_sign",
+    "sign_text": "SERVICES / RECREATION",
+    "meaning": "This sign identifies services or recreation facilities.",
+    "meaning_es": "Este letrero identifica servicios o instalaciones recreativas.",
+    "cue_text": "Services / recreation.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "What does this sign identify?",
+        "answer_keywords": [
+          "service",
+          "recreation",
+          "camping"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "no_u_turn",
+    "sign_text": "NO U TURN",
+    "meaning": "A U-turn is prohibited.",
+    "meaning_es": "No se permite dar la vuelta en U.",
+    "cue_text": "No U turn.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "What maneuver is prohibited by this sign?",
+        "answer_keywords": [
+          "u turn",
+          "u-turn"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "second_right",
+    "sign_text": "SECOND RIGHT",
+    "meaning": "The sign points to the second upcoming right turn.",
+    "meaning_es": "El letrero indica el segundo giro a la derecha que viene.",
+    "cue_text": "Second right ahead. Watch for the upcoming turns.",
+    "driving_cue_text": "Second right ahead. Watch for the upcoming turns.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "Which upcoming turn does this sign indicate?",
+        "answer_keywords": [
+          "second right",
+          "second",
+          "2nd"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "next_exit",
+    "sign_text": "NEXT EXIT",
+    "meaning": "The destination on this sign is reached using the next exit.",
+    "meaning_es": "El destino indicado se encuentra tomando la pr\u00f3xima salida.",
+    "cue_text": "Next exit coming up. Watch for the exit signs.",
+    "driving_cue_text": "Next exit coming up. Watch for the exit signs.",
+    "safety_critical": false,
+    "questions": [
+      {
+        "q": "Which exit does this sign refer to?",
+        "answer_keywords": [
+          "next exit",
+          "next",
+          "upcoming"
+        ]
       }
     ],
     "verified": false

@@ -1,0 +1,70 @@
+[
+  {
+    "path": "research/validation/raw-218.png",
+    "size": [
+      192,
+      260
+    ],
+    "note": "Business/property or street-blade negative for catalog traffic categories; tight crops are not fullframe specialist evaluation",
+    "specialist": [],
+    "demo_nearest_label": {
+      "sign_id": "one_way",
+      "sign_text": "",
+      "confidence": 0.259,
+      "symbol_similarity": 0.259,
+      "tentative": true,
+      "demo_guess": true
+    }
+  },
+  {
+    "path": "research/validation/raw-246.png",
+    "size": [
+      188,
+      328
+    ],
+    "note": "Business/property or street-blade negative for catalog traffic categories; tight crops are not fullframe specialist evaluation",
+    "specialist": [],
+    "demo_nearest_label": {
+      "sign_id": "do_not_enter",
+      "sign_text": "",
+      "confidence": 0.2549,
+      "symbol_similarity": 0.2549,
+      "tentative": true,
+      "demo_guess": true
+    }
+  },
+  {
+    "path": "research/validation/raw-119.png",
+    "size": [
+      160,
+      260
+    ],
+    "note": "Business/property or street-blade negative for catalog traffic categories; tight crops are not fullframe specialist evaluation",
+    "specialist": [],
+    "demo_nearest_label": {
+      "sign_id": "lane_ends",
+      "sign_text": "",
+      "confidence": 0.292,
+      "symbol_similarity": 0.292,
+      "tentative": true,
+      "demo_guess": true
+    }
+  },
+  {
+    "path": "research/validation/raw-145.png",
+    "size": [
+      148,
+      264
+    ],
+    "note": "Business/property or street-blade negative for catalog traffic categories; tight crops are not fullframe specialist evaluation",
+    "specialist": [],
+    "demo_nearest_label": {
+      "sign_id": "one_way",
+      "sign_text": "",
+      "confidence": 0.2695,
+      "symbol_similarity": 0.2695,
+      "tentative": true,
+      "demo_guess": true
+    }
+  }
+]
