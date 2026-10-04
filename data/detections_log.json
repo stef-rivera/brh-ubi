@@ -108,5 +108,27 @@
     "meaning_es": "Detente por completo. Sigue solo cuando sea seguro.",
     "verified": false,
     "cue_text": "Stop ahead."
+  },
+  {
+    "drive_id": "2026-10-03T20-36-50",
+    "ts_video": 20.05,
+    "ts_wall": "2026-10-04T00:38:29.265556+00:00",
+    "sign_id": "unknown",
+    "sign_text": "Humboldt Av",
+    "safety_critical": false,
+    "speak_now": false,
+    "box": [
+      1070,
+      259,
+      1155,
+      285
+    ],
+    "confidence": 0.69,
+    "source": "gemini",
+    "thumb_url": "/thumbs/2026-10-03T20-36-50/1.jpg",
+    "meaning": "",
+    "meaning_es": "",
+    "verified": false,
+    "cue_text": ""
   }
 ]
