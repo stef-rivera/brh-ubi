@@ -2429,5 +2429,61 @@
     "recognition_error": "",
     "recognition_seconds": 8.528,
     "value": null
+  },
+  {
+    "event_id": "2026-10-04T04-52-49:white sign:170",
+    "drive_id": "2026-10-04T04-52-49",
+    "ts_video": 17.07,
+    "ts_wall": "2026-10-04T08:53:11.499485+00:00",
+    "sign_id": "speed_limit",
+    "sign_text": "SPEED LIMIT 40",
+    "recognition_status": "resolved",
+    "box": [
+      803,
+      359,
+      833,
+      394
+    ],
+    "confidence": 0.9,
+    "source": "local-ocr",
+    "thumb_url": "/thumbs/2026-10-04T04-52-49/170.jpg",
+    "meaning": "Do not drive faster than the number on the sign.",
+    "verified": false,
+    "safety_critical": false,
+    "speak_now": false,
+    "first_seen_video": 17.067050000000002,
+    "meaning_es": "No conduzcas mas rapido que el numero en el letrero.",
+    "cue_text": "Speed limit.",
+    "recognition_error": "",
+    "recognition_seconds": 0.045,
+    "value": 40
+  },
+  {
+    "event_id": "2026-10-04T04-52-49:orange sign:393",
+    "drive_id": "2026-10-04T04-52-49",
+    "ts_video": 39.36,
+    "ts_wall": "2026-10-04T08:53:33.786158+00:00",
+    "sign_id": "road_work",
+    "sign_text": "ROAD WORK AHEAD EXPECT DELAYS",
+    "recognition_status": "resolved",
+    "box": [
+      822,
+      328,
+      904,
+      382
+    ],
+    "confidence": 0.85,
+    "source": "local+grok",
+    "thumb_url": "/thumbs/2026-10-04T04-52-49/393.jpg",
+    "meaning": "Workers or equipment are ahead. Slow down and watch the lane.",
+    "verified": false,
+    "safety_critical": true,
+    "speak_now": false,
+    "first_seen_video": 39.355983333333334,
+    "meaning_es": "Hay obras mas adelante. Reduce la velocidad y mira el carril.",
+    "cue_text": "Road work ahead.",
+    "recognition_error": "",
+    "recognition_seconds": 6.233,
+    "value": null
   }
 ]

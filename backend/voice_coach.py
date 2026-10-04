@@ -28,21 +28,30 @@ def logged_sign_lines(detections: list[dict]) -> list[str]:
 
 
 def coach_instructions(detections: list[dict]) -> str:
-    """Short spoken practice: the signs from this drive, then one dock-radio scene."""
+    """Short spoken practice from the signs on this drive, then one dispatcher question about those signs."""
     signs = logged_sign_lines(detections)
     if signs:
         passed = "Signs logged on this drive: " + "; ".join(signs) + "."
+        followup = (
+            "After those signs, become a dispatcher checking in on the radio. "
+            "Ask one practical question a driver would get about the signs that were actually logged. "
+            "Use only those signs. Do not mention anything that was not logged. "
+        )
     else:
-        passed = "No signs were logged. Use a speed limit of 40 and road work ahead as the drive they just finished."
+        passed = "No signs were logged on this drive."
+        followup = (
+            "Ask them to describe the road they just drove. "
+            "Then become a dispatcher checking in on the radio and ask one ordinary question, such as where they are headed. "
+            "Do not mention a sign they did not pass. "
+        )
     return (
         "You are a calm American English coach talking with a truck driver who just parked. "
         "Speak in short sentences. Do not lecture. Do not list every sign at once. "
         f"{passed} "
-        "Start by asking about one sign they passed, then the next, one question at a time. "
+        "If signs were logged, ask about one of them, then the next, one question at a time. "
         "If they answer well, say so and move on. If they miss it, give the plain meaning once and ask them to say it back. "
         "If they ask to hear a sign in Spanish, give one short Spanish sentence, then return to English. "
-        "After the signs, switch to a dispatcher on the dock radio. "
-        "Use the signs from this drive. Ask whether they can still make the dock by 4, with the road work and the speed limit in mind. "
+        f"{followup}"
         "Stay in that scene for two or three short turns. Then tell them practice is done and stop asking questions."
     )
 

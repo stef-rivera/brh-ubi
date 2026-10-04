@@ -55,6 +55,9 @@ let micContext = null;
 let micProcessor = null;
 let playContext = null;
 let playTime = 0;
+let coachSources = [];
+let coachStopped = false;
+let coachGeneration = 0;
 
 function setMode(name) {
   const modeName = name === "driving" || name === "parked" ? name : "idle";
@@ -147,6 +150,7 @@ async function start(source) {
   log.replaceChildren();
   log.hidden = true;
   practice.hidden = true;
+  coachGeneration += 1;
   stopCoach();
   park.disabled = false;
   setMode("driving");
@@ -158,6 +162,7 @@ document.querySelector("#start-file").addEventListener("click", () => start("fil
 park.addEventListener("click", async () => {
   unlockVoice();
   clearCues();
+  const generation = ++coachGeneration;
   stopCoach();
   panel.hidden = false;
   panelTitle.textContent = "Parked practice";
@@ -171,8 +176,16 @@ park.addEventListener("click", async () => {
   } catch {
     stream = null;
   }
+  if (generation !== coachGeneration) {
+    if (stream) stream.getTracks().forEach((track) => track.stop());
+    return;
+  }
   const response = await fetch("/api/park", { method: "POST" });
   const body = await response.json();
+  if (generation !== coachGeneration) {
+    if (stream) stream.getTracks().forEach((track) => track.stop());
+    return;
+  }
   setMode("parked");
   panel.hidden = false;
   if (!body.voice) {
@@ -185,8 +198,10 @@ park.addEventListener("click", async () => {
 });
 
 document.querySelector("#coach-end").addEventListener("click", () => {
+  coachGeneration += 1;
   stopCoach();
-  coachStatus.textContent = "Practice ended.";
+  setMode("idle");
+  hint.textContent = "Practice ended.";
 });
 
 document.querySelector("#practice").addEventListener("submit", async (event) => {
@@ -290,7 +305,19 @@ let cueGeneration = 0;
 function clearCues() { cueGeneration++; cueQueue.length = 0; cueBusy = false; player.pause(); player.onended = null; player.onerror = null; speechSynthesis.cancel(); }
 function enqueueCue(cue) { if (!voiceOn) return; cueQueue.push({...cue, received: Date.now()}); drainCues(); }
 function stopCoach() {
+  coachStopped = true;
+  for (const source of coachSources) {
+    try { source.stop(); } catch { /* already finished */ }
+  }
+  coachSources = [];
+  playTime = 0;
+  if (playContext) {
+    playContext.close().catch(() => {});
+    playContext = null;
+  }
   if (coachSocket) {
+    coachSocket.onmessage = null;
+    coachSocket.onopen = null;
     coachSocket.onclose = null;
     coachSocket.close();
     coachSocket = null;
@@ -308,7 +335,6 @@ function stopCoach() {
     micContext.close().catch(() => {});
     micContext = null;
   }
-  playTime = 0;
 }
 
 function pcm16Base64(samples) {
@@ -351,7 +377,7 @@ function resample(input, fromRate, toRate) {
 }
 
 function playCoachPcm(encoded) {
-  if (!playContext) playContext = new AudioContext({ sampleRate: VOICE_RATE });
+  if (coachStopped || !playContext) return;
   const samples = base64ToFloat32(encoded);
   if (!samples.length) return;
   const buffer = playContext.createBuffer(1, samples.length, VOICE_RATE);
@@ -359,6 +385,10 @@ function playCoachPcm(encoded) {
   const source = playContext.createBufferSource();
   source.buffer = buffer;
   source.connect(playContext.destination);
+  source.onended = () => {
+    coachSources = coachSources.filter((item) => item !== source);
+  };
+  coachSources.push(source);
   const now = playContext.currentTime;
   if (playTime < now) playTime = now + 0.05;
   source.start(playTime);
@@ -384,7 +414,8 @@ function startMic(stream, socket) {
 }
 
 function beginCoach(voice, stream) {
-  playContext = playContext || new AudioContext({ sampleRate: VOICE_RATE });
+  coachStopped = false;
+  playContext = new AudioContext({ sampleRate: VOICE_RATE });
   playContext.resume();
   playTime = 0;
   const socket = new WebSocket(
@@ -394,6 +425,7 @@ function beginCoach(voice, stream) {
   coachSocket = socket;
   coachStatus.textContent = "Connecting to the coach…";
   socket.onopen = () => {
+    if (coachStopped || coachSocket !== socket) return;
     socket.send(JSON.stringify({
       type: "session.update",
       session: {
@@ -419,6 +451,7 @@ function beginCoach(voice, stream) {
     coachStatus.textContent = "The coach is speaking. Then just answer out loud.";
   };
   socket.onmessage = (event) => {
+    if (coachStopped || coachSocket !== socket) return;
     let message;
     try { message = JSON.parse(event.data); } catch { return; }
     if (message.type === "response.created") coachStatus.textContent = "Coach is speaking.";

@@ -107,7 +107,16 @@ class LocalTests(unittest.TestCase):
   self.assertIn('SPEED LIMIT 40', text)
   self.assertIn('ROAD WORK AHEAD EXPECT DELAYS', text)
   self.assertEqual(text.count('SPEED LIMIT 40'), 1)
-  self.assertIn('dock', text.lower())
+  self.assertIn('actually logged', text)
+ def test_coach_does_not_invent_signs_from_another_clip(self):
+  from backend.voice_coach import coach_instructions
+  stop=coach_instructions([{'recognition_status':'resolved','sign_text':'STOP','sign_id':'stop'}])
+  self.assertIn('STOP', stop)
+  self.assertNotIn('ROAD WORK', stop)
+  self.assertNotIn('speed limit', stop.lower())
+  empty=coach_instructions([])
+  self.assertNotIn('ROAD WORK', empty)
+  self.assertNotIn('40', empty)
  def test_speed_limit_is_spoken(self):
   d=self.detector();job=self.job('a');d.publish_pending(job)
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
