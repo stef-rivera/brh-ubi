@@ -14,6 +14,17 @@ from backend.config import settings
 
 _client: genai.Client | None = None
 
+CROP_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "sign_id": {"type": "STRING"},
+        "sign_text": {"type": "STRING"},
+        "confidence": {"type": "NUMBER"},
+    },
+    "required": ["sign_id", "sign_text", "confidence"],
+}
+
+
 SCHEMA = {
     "type": "OBJECT",
     "properties": {
@@ -76,6 +87,48 @@ def _box_to_pixels(box, width: int, height: int) -> list[int] | None:
     if x2 <= x1 or y2 <= y1:
         return None
     return [x1, y1, x2, y2]
+
+
+def read_crop(crop_bgr) -> dict | None:
+    """Read one tight sign crop. Returns sign_id, sign_text, and confidence."""
+    if crop_bgr is None or crop_bgr.size == 0:
+        return None
+    ok, encoded = cv2.imencode(".jpg", crop_bgr, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    if not ok:
+        return None
+    prompt = (
+        "This image is a tight crop of one US road sign from a dashcam.\n"
+        "Match it to one catalog id. If it is not in the catalog, use unknown.\n"
+        "sign_text is the words on the sign, including any number.\n"
+        "Do not explain the law.\n"
+        "Catalog:\n"
+        f"{prompt_list()}"
+    )
+    known = set(ids()) | {"unknown"}
+    catalog = load_catalog()
+    try:
+        response = _client_or_new().models.generate_content(
+            model=settings.gemini_model,
+            contents=[
+                types.Part.from_bytes(data=encoded.tobytes(), mime_type="image/jpeg"),
+                prompt,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=CROP_SCHEMA,
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+            ),
+        )
+        raw = json.loads(response.text or "{}")
+    except Exception as exc:
+        print(f"gemini read_crop failed: {type(exc).__name__}: {exc}")
+        return None
+    sign_text = str(raw.get("sign_text") or "")
+    return {
+        "sign_id": _match_id(str(raw.get("sign_id") or "unknown"), sign_text, known, catalog),
+        "sign_text": sign_text,
+        "confidence": float(raw.get("confidence") or 0),
+    }
 
 
 def read_frame(frame_bgr) -> list[dict]:

@@ -22,7 +22,7 @@
         <label for="detector">Sign reader</label>
         <select id="detector"><option value="local">Local vision</option><option value="chatgpt">ChatGPT plan</option><option value="gemini">Gemini API</option></select>
         <div id="local-controls">
-          <p class="hint">Finds signs on this Mac and reads text locally. Uncertain signs remain visible in the log.</p>
+          <p class="hint">Finds speed, stop, do-not-enter, road-work, and school signs, and also reads orange, red, white, yellow, and green direction signs by color. Street-name signs are ignored.</p>
           <label><input id="cloud-assist" type="checkbox" /> Use ChatGPT for uncertain sign crops (up to 8 per drive)</label>
         </div>
         <div id="chatgpt-controls">

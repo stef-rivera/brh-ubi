@@ -148,5 +148,20 @@
       }
     ],
     "verified": false
+  },
+  {
+    "id": "pedestrian_crossing",
+    "sign_text": "PEDESTRIAN CROSSING",
+    "meaning": "People may be crossing here. Slow down and watch for them.",
+    "meaning_es": "Las personas pueden cruzar aqui. Reduce la velocidad y miralas.",
+    "cue_text": "Pedestrian crossing.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "You passed this sign. Who might be crossing?",
+        "answer_keywords": ["pedestrian", "people", "person", "crossing"]
+      }
+    ],
+    "verified": false
   }
 ]

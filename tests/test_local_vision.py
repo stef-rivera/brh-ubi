@@ -2,7 +2,8 @@ import queue,threading,time,unittest
 from types import SimpleNamespace
 from unittest.mock import Mock,patch
 import numpy as np
-from backend.local_vision import LocalDetector,interpret_text
+import cv2
+from backend.local_vision import LocalDetector,box_is_clearer,color_sign_boxes,interpret_text,last_kept_at,should_read_sign
 from backend.state import state
 
 class LocalTests(unittest.TestCase):
@@ -11,6 +12,50 @@ class LocalTests(unittest.TestCase):
   publisher=patch('backend.local_vision.bus.publish');publisher.start();self.addCleanup(publisher.stop)
  def detector(self,**kw):return LocalDetector(SimpleNamespace(ended=False),model=Mock(),**kw)
  def job(self,ident):return dict(id=ident,crop=np.zeros((50,50,3),dtype='uint8'),ts=1,box=[0,0,50,50],confidence=.9,labels={'speed limit sign':3},created=time.monotonic(),thumb='')
+ def test_sure_sign_is_read_once_per_20_seconds(self):
+  self.assertTrue(should_read_sign(17.0, .76, 25, None, None))
+  self.assertFalse(should_read_sign(17.0, .6, 23, None, None))
+  self.assertFalse(should_read_sign(18.0, .9, 40, None, 17.0))
+  self.assertTrue(should_read_sign(37.1, .8, 30, None, 17.0))
+ def test_failed_read_allows_a_closer_look(self):
+  self.assertFalse(box_is_clearer((37.8, 24), 38.0, 26))
+  self.assertTrue(box_is_clearer((37.8, 24), 39.5, 64))
+  self.assertEqual(last_kept_at({'speed_limit': 17.2}, 'white sign'), 17.2)
+  self.assertFalse(should_read_sign(36.0, .8, 40, None, 17.2))
+ def test_repeated_sign_is_read_without_overlap(self):
+  self.assertFalse(should_read_sign(16.2, .6, 28, None, None))
+  self.assertTrue(should_read_sign(16.8, .6, 28, 16.2, None))
+  self.assertFalse(should_read_sign(17.2, .6, 40, 16.8, 16.8))
+ def _paint(self, frame, hsv, x, y, w, h):
+  patch=np.zeros((h,w,3),dtype='uint8'); patch[:]=hsv
+  frame[y:y+h, x:x+w]=cv2.cvtColor(patch, cv2.COLOR_HSV2BGR)
+ def test_color_keeps_guide_signs_and_skips_street_blades_and_snow(self):
+  frame=np.zeros((720,1280,3),dtype='uint8')
+  self._paint(frame,(3,200,180),700,360,70,40)
+  self._paint(frame,(60,180,140),200,360,50,18)
+  self._paint(frame,(60,180,140),400,300,160,50)
+  self._paint(frame,(0,10,230),100,640,500,70)
+  names={box['name'] for box in color_sign_boxes(frame)}
+  self.assertEqual(names, {'orange sign','green sign'})
+ def test_green_exit_is_kept_and_street_name_is_not(self):
+  found=interpret_text([{'text':'EXIT 12','confidence':.9}],{'green sign':1})
+  self.assertEqual(found['sign_text'],'EXIT 12')
+  self.assertIsNone(interpret_text([{'text':'Pleasant Hill Rd','confidence':1}],{'green sign':1}))
+ def test_one_letter_misses_are_filled_in(self):
+  found=interpret_text([{'text':'AHEAD EYPECT DELAT','confidence':.9}],{'orange sign':1})
+  self.assertEqual(found['sign_text'],'ROAD WORK AHEAD EXPECT DELAY')
+  # The real crop starts with ROAD, which must not be thrown out as a street name.
+  found=interpret_text([{'text':'ROAD NDEA AHEAD EXPECT DELAS','confidence':.9}],{'orange sign':1})
+  self.assertEqual(found['sign_text'],'ROAD WORK AHEAD EXPECT DELAY')
+  # The short tail is the same sign, still blurry. It must not count as the reading.
+  self.assertIsNone(interpret_text([{'text':'EXPECT DELA','confidence':1}],{'orange sign':1}))
+  self.assertIsNone(interpret_text([{'text':'HOAU NISX','confidence':.9}],{'orange sign':1}))
+ def test_orange_sentence_is_kept(self):
+  found=interpret_text([{'text':'LEFT LANE CLOSED','confidence':.9}],{'orange sign':1})
+  self.assertEqual(found['sign_id'],'road_work')
+  self.assertEqual(found['sign_text'],'LEFT LANE CLOSED')
+ def test_street_names_are_ignored(self):
+  self.assertIsNone(interpret_text([{'text':'Pleasant Hill Rd','confidence':1}],{}))
  def test_number_requires_speed_evidence(self):
   self.assertIsNone(interpret_text([{'text':'40','confidence':1}],{}))
   self.assertEqual(interpret_text([{'text':'40','confidence':1}],{'speed limit sign':3})['value'],40)
