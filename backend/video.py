@@ -16,6 +16,7 @@ class VideoSource:
         self._frame = None
         self._ts = 0.0
         self._running = False
+        self._paused = threading.Event()
         self._thread: threading.Thread | None = None
         self._cap: cv2.VideoCapture | None = None
 
@@ -31,6 +32,16 @@ class VideoSource:
         self._running = True
         self._thread = threading.Thread(target=self._loop, name="video", daemon=True)
         self._thread.start()
+
+    @property
+    def paused(self) -> bool:
+        return self._paused.is_set()
+
+    def pause(self) -> None:
+        self._paused.set()
+
+    def resume(self) -> None:
+        self._paused.clear()
 
     def stop(self) -> None:
         self._running = False
@@ -64,6 +75,10 @@ class VideoSource:
         is_file = not isinstance(self.source, int)
         next_tick = time.perf_counter()
         while self._running:
+            if self.paused:
+                time.sleep(.03)
+                next_tick = time.perf_counter()
+                continue
             ok, frame = cap.read()
             if not ok:
                 if is_file:

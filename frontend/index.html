@@ -19,6 +19,11 @@
     <section class="stage">
       <img id="video" alt="Dashcam view" />
       <section class="connection" aria-label="Detection settings">
+        <label for="clip">Demo video</label>
+        <select id="clip">
+          <option value="day">Day drive</option>
+          <option value="night" selected>Night drive</option>
+        </select>
         <label for="detector">Sign reader</label>
         <select id="detector"><option value="local">Local vision</option></select>
         <div id="local-controls">
@@ -41,6 +46,7 @@
       </section>
       <div class="controls">
         <button id="start-file" type="button" disabled>Start drive</button>
+        <button id="pause-drive" type="button" class="secondary" disabled>Pause drive</button>
         <button id="park" type="button" class="secondary" disabled>Park</button>
       </div>
       <p class="hint" id="audio-status" role="status">Voice starts when you press Start drive.</p>
@@ -51,7 +57,12 @@
       <h2 id="panel-title">Sign log</h2>
       <p id="playback-status" class="hint" role="status"></p>
       <p id="pipeline-status" class="hint" role="status"></p>
-      <div id="log" class="log"></div>
+      <div class="sign-log-tabs" role="tablist" aria-label="Sign log categories">
+        <button id="log-audio-tab" type="button" role="tab" aria-selected="true" aria-controls="log">Audio cues (0)</button>
+        <button id="log-other-tab" type="button" role="tab" aria-selected="false" aria-controls="log" tabindex="-1">Everything else (0)</button>
+      </div>
+      <p id="log-empty" class="hint" hidden></p>
+      <div id="log" class="log" role="tabpanel" aria-labelledby="log-audio-tab"></div>
       <form id="practice" class="practice" hidden>
         <p id="progress"></p>
         <img id="q-thumb" alt="" hidden />

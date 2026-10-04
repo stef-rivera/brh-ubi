@@ -7,8 +7,7 @@ from backend.vision_runtime import mps_lock
 
 WEIGHTS = ROOT / '.local/vision/lisa47.pt'
 SHA256 = 'cfaba5cad447b2a251b722015bd66fc613845b0d151d2d576d6a2a9198aa1b7b'
-MAP = {'school':'school_zone','stop':'stop','yield':'yield','doNotEnter':'do_not_enter',
-       'noLeftTurn':'no_left_turn','laneEnds':'lane_ends'}
+MAP = {'school': 'school_zone', 'stop': 'stop', 'yield': 'yield', 'doNotEnter': 'do_not_enter', 'noLeftTurn': 'no_left_turn', 'laneEnds': 'lane_ends', 'addedLane': 'added_lane', 'curveLeft': 'curve_left', 'curveRight': 'curve_right', 'dip': 'dip', 'doNotPass': 'do_not_pass', 'intersection': 'intersection', 'keepRight': 'keep_right', 'merge': 'merge', 'noRightTurn': 'no_right_turn', 'pedestrianCrossing': 'pedestrian_crossing', 'rightLaneMustTurn': 'right_lane_must_turn', 'roundabout': 'roundabout', 'signalAhead': 'signal_ahead', 'slow': 'slow', 'stopAhead': 'stop_ahead', 'thruMergeLeft': 'thru_merge_left', 'thruMergeRight': 'thru_merge_right', 'thruTrafficMergeLeft': 'thru_traffic_merge_left', 'turnLeft': 'turn_left', 'turnRight': 'turn_right', 'yieldAhead': 'yield_ahead', 'speedLimitUrdbl': 'speed_limit', 'rampSpeedAdvisoryUrdbl': 'ramp_speed_advisory'}
 
 
 def overlap(a,b):
@@ -25,12 +24,17 @@ def resolve_votes(votes):
     confidence=sum(v['confidence'] for v in matched)/len(matched)
     if count<3 or count/len(votes)<.6 or confidence<.25:return None
     value=None
-    speed=re.fullmatch(r'speedLimit(\d+)',name)
+    speed=re.fullmatch(r'(speedLimit|rampSpeedAdvisory|schoolSpeedLimit|truckSpeedLimit|zoneAhead)(\d+)',name)
     sign_id=MAP.get(name,'unknown')
     text=re.sub(r'(?<!^)(?=[A-Z])',' ',name).upper()
-    if speed:sign_id='speed_limit';value=int(speed[1]);text=f'SPEED LIMIT {value}'
+    if speed:
+        sign_id={'speedLimit':'speed_limit','rampSpeedAdvisory':'ramp_speed_advisory','schoolSpeedLimit':'school_speed_limit','truckSpeedLimit':'truck_speed_limit','zoneAhead':'speed_zone_ahead'}[speed[1]]
+        value=int(speed[2])
+        from backend.catalog import get
+        text=f"{get(sign_id)['sign_text']} {value}"
     if name=='school':text='SCHOOL'
     if name=='speedLimitUrdbl':text='SPEED LIMIT, NUMBER UNREADABLE'
+    if name=='rampSpeedAdvisoryUrdbl':text='RAMP ADVISORY SPEED, NUMBER UNREADABLE'
     # Combined bicycle/pedestrian is outside LISA; generic pedestrian stays tentative.
     tentative=confidence<.65 or count/len(votes)<.8 or sign_id=='unknown'
     return dict(sign_id=sign_id,sign_text=text,confidence=round(confidence,3),value=value,

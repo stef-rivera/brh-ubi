@@ -17,3 +17,17 @@ Meanings in the catalog remain marked as drafts. This is a demonstration of reco
 - A new drive must not reuse pending results from the previous drive.
 
 Record frame count, recognition latency, audio enqueue/playback outcomes and unresolved crops for each run. Candidate counts do not establish recognition accuracy.
+
+## Review mistakes
+
+Each completed sign card has **Yes, correct**, **No, fix it**, **Not a road sign**, and **Ignore** controls. Use No, fix it to select the correct catalog type and optionally edit text or a speed value. Undo review restores the original machine prediction. Reviewed cards stay protected from later model updates. Correcting a parked card restarts practice using the current reviewed signs.
+
+Raw crops, full frames, predictions, and review history are stored locally under `.local/feedback/` (Git ignored). Same-clip replay may reuse a correction when the video fingerprint, timestamp, and box match. This is human review memory, not retrained model weights.
+
+Export the reviewed examples for annotation with:
+
+```sh
+.venv-local/bin/python scripts/export_feedback.py --output .local/feedback/export
+```
+
+The exported manifest is not yet ready for detector training: selected frames need complete sign annotations and a separate validation split. No automatic training or cloud image upload runs.

@@ -9,7 +9,7 @@ from backend.vision_runtime import mps_lock
 LABELS = [
     ('school_zone', 'school crossing sign with two children walking'),
     ('bicycle_pedestrian_crossing', 'bicycle and pedestrian crossing sign'),
-    (None, 'pedestrian crossing sign with one person'),
+    ('pedestrian_crossing', 'pedestrian crossing sign with one person'),
     ('speed_limit', 'speed limit sign'), ('stop', 'stop sign'),
     ('do_not_enter', 'do not enter sign'), ('road_work', 'road work sign'),
     (None, 'street name sign'), (None, 'advertising business sign'),
@@ -19,6 +19,26 @@ LABELS = [
     ('lane_ends','lane ends sign'), ('one_way','one way arrow sign'),
     ('railroad','railroad crossing sign'),
 ]
+
+# These descriptions extend zero-shot matching, not the specialist's weights.
+from backend.catalog import load_catalog
+_known = {id for id, _ in LABELS}
+LABELS += [(row['id'], row['sign_text'].lower() + ' US traffic sign')
+           for row in load_catalog() if row['id'] not in _known]
+LABELS += [(None, text) for text in (
+    'gas station price board advertising gasoline fuel prices',
+    'pizza restaurant business logo storefront advertisement',
+    'storefront sign advertising heating air conditioning services',
+    'illuminated retail store business advertisement logo')]
+BUSINESS_INDICES = [8] + list(range(len(LABELS)-4, len(LABELS)))
+
+
+def business_sign_reason(texts):
+    import re
+    text = ' '.join(t.get('text', '') for t in texts).upper()
+    if re.search(r'\b(SINCLAIR|GASOLINE|PIZZA|RESTAURANT)\b', text) or ('HEAT' in text and 'AIR' in text):
+        return 'Advertising business sign (local OCR)'
+    return ''
 
 
 def agree(scores):
@@ -66,6 +86,14 @@ class LocalSymbolClassifier:
         usable=[c for c in crops if min(c.shape[:2])>=8][:3]
         if not usable:return None
         scores=self._scores(usable)
+        # Non-driving negatives compete before the demo's forced catalog guess.
+        # Blurry/unknown traffic signs still get a guess; only names/ads are removed.
+        averages=[sum(row[i] for row in scores)/len(scores) for i in range(len(LABELS))]
+        order=sorted(range(len(averages)),key=lambda i:averages[i],reverse=True)
+        best,second=order[:2]
+        if best in ([7] + BUSINESS_INDICES) and averages[best]>=.25 and averages[best]-averages[second]>=.012:
+            return dict(irrelevant_reason='Street-name blade' if best==7 else 'Advertising business sign',
+                        symbol_similarity=round(averages[best],4))
         confident=agree(scores)
         if confident:return confident
         # Recorded-video demo deliberately shows a nearest catalog guess for every crop.

@@ -1,0 +1,183 @@
+{
+  "method": "Held-out native GT6 crops plus6 previously reviewed upscaled hard-negative crops. Does not measure full-drive recall. No training/correction labels fed to inference.",
+  "rows": [
+    {
+      "id": "school",
+      "truth": "school_zone",
+      "ocr": [],
+      "before_nearest_guess": "school_zone",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "school_zone",
+        "sign_text": "",
+        "confidence": 0.4033,
+        "symbol_similarity": 0.4033,
+        "symbol_margin": 0.0596
+      },
+      "ms": 828.61
+    },
+    {
+      "id": "no_turn",
+      "truth": "no_turn_on_red",
+      "ocr": [],
+      "before_nearest_guess": "do_not_enter",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "do_not_enter",
+        "sign_text": "",
+        "confidence": 0.2622,
+        "symbol_similarity": 0.2622,
+        "tentative": true,
+        "demo_guess": true
+      },
+      "ms": 41.85
+    },
+    {
+      "id": "speed_first",
+      "truth": "speed_limit",
+      "ocr": [
+        {
+          "text": "SPIEED",
+          "confidence": 1.0
+        },
+        {
+          "text": "LIMI",
+          "confidence": 1.0
+        },
+        {
+          "text": "40",
+          "confidence": 1.0
+        }
+      ],
+      "before_nearest_guess": "speed_limit",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "speed_limit",
+        "sign_text": "",
+        "confidence": 0.3218,
+        "symbol_similarity": 0.3218,
+        "symbol_margin": 0.0254
+      },
+      "ms": 117.03
+    },
+    {
+      "id": "speed_second",
+      "truth": "speed_limit",
+      "ocr": [],
+      "before_nearest_guess": "speed_limit",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "speed_limit",
+        "sign_text": "",
+        "confidence": 0.3386,
+        "symbol_similarity": 0.3386,
+        "tentative": true,
+        "demo_guess": true
+      },
+      "ms": 48.1
+    },
+    {
+      "id": "road_work",
+      "truth": "road_work",
+      "ocr": [],
+      "before_nearest_guess": "road_work",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "road_work",
+        "sign_text": "",
+        "confidence": 0.3413,
+        "symbol_similarity": 0.3413,
+        "symbol_margin": 0.0276
+      },
+      "ms": 44.52
+    },
+    {
+      "id": "crossing",
+      "truth": "pedestrian_bicycle_crossing",
+      "ocr": [],
+      "before_nearest_guess": "bicycle_pedestrian_crossing",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "bicycle_pedestrian_crossing",
+        "sign_text": "",
+        "confidence": 0.3435,
+        "symbol_similarity": 0.3435,
+        "symbol_margin": 0.0386
+      },
+      "ms": 51.0
+    },
+    {
+      "id": "raw-113",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "road_work",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "road_work",
+        "sign_text": "",
+        "confidence": 0.2382,
+        "symbol_similarity": 0.2382,
+        "tentative": true,
+        "demo_guess": true
+      },
+      "ms": 43.73
+    },
+    {
+      "id": "raw-119",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "lane_ends",
+      "filtered_reason": "Small green street-name blade",
+      "after": null,
+      "ms": 36.82
+    },
+    {
+      "id": "raw-124",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "lane_ends",
+      "filtered_reason": "Small green street-name blade",
+      "after": null,
+      "ms": 47.45
+    },
+    {
+      "id": "raw-145",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "one_way",
+      "filtered_reason": "Small green street-name blade",
+      "after": null,
+      "ms": 37.46
+    },
+    {
+      "id": "raw-218",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "one_way",
+      "filtered_reason": "Advertising business sign",
+      "after": {
+        "irrelevant_reason": "Advertising business sign",
+        "symbol_similarity": 0.2776
+      },
+      "ms": 56.36
+    },
+    {
+      "id": "raw-246",
+      "truth": "nontraffic",
+      "ocr": [],
+      "before_nearest_guess": "do_not_enter",
+      "filtered_reason": "",
+      "after": {
+        "sign_id": "do_not_enter",
+        "sign_text": "",
+        "confidence": 0.2549,
+        "symbol_similarity": 0.2549,
+        "tentative": true,
+        "demo_guess": true
+      },
+      "ms": 37.8
+    }
+  ],
+  "traffic_examples_removed": 0,
+  "nontraffic_removed": 4
+}

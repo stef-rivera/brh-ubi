@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import re
 
-from backend.catalog import get
+from backend.catalog import get, NUMERIC_SIGNS
 from backend.state import state
 from backend.storage import log_answer
 from backend.tts import speak
@@ -36,8 +36,8 @@ def build_session(detections: list[dict]) -> list[dict]:
         if not entry or not entry.get("questions"):
             continue
         sign_text = row.get("sign_text") or entry["sign_text"]
-        value = _speed_value(row) if sign_id == "speed_limit" else None
-        identity = (sign_id, value if sign_id == "speed_limit" else sign_text.casefold().strip())
+        value = _speed_value(row) if sign_id in NUMERIC_SIGNS else None
+        identity = (sign_id, value if sign_id in NUMERIC_SIGNS else sign_text.casefold().strip())
         if identity in used:
             continue
         used.add(identity)

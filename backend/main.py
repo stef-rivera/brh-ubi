@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from backend.config import ROOT, settings
 from backend.chatgpt_routes import router as chatgpt_router
 from backend.events import bus
+from backend.feedback import router as feedback_router
 from backend.practice import build_session, current_question, submit
 from backend.state import state
 from backend.tts import speak
@@ -53,6 +54,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(chatgpt_router)
+app.include_router(feedback_router)
 app.mount("/thumbs", StaticFiles(directory=str(THUMBS)), name="thumbs")
 app.mount("/audio", StaticFiles(directory=str(AUDIO)), name="audio")
 app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")
@@ -76,7 +78,10 @@ class SpeakBody(BaseModel):
 def _resolve_source(choice: str):
     if choice == "webcam":
         return 0
-    path = ROOT / settings.video_path
+    clips = {"day": "data/drive.mp4", "night": "data/night-drive.mp4"}
+    if choice not in ("file", "day", "night"):
+        raise HTTPException(400, "Choose the day or night demo clip.")
+    path = ROOT / clips.get(choice, settings.video_path)
     if not path.exists():
         raise FileNotFoundError(
             f"No video at {path}. Add a dashcam clip there, or start with the webcam."
@@ -130,6 +135,30 @@ def start_drive(body: StartBody):
             state.detection_status = "error"
         raise HTTPException(400, "Could not start local vision. Run the local setup script and check the server log.") from exc
     event = {"type": "state", "mode": "driving", "detector": state.detector, "drive_id": drive_id}
+    bus.publish(event)
+    return event
+
+
+@app.post("/api/drive/pause")
+def pause_drive():
+    if video is None or state.mode != "driving":
+        raise HTTPException(400, "Start a drive before pausing.")
+    video.pause()
+    with state.lock:
+        state.mode = "paused"
+    event = {"type": "state", "mode": "paused", "drive_id": state.drive_id}
+    bus.publish(event)
+    return event
+
+
+@app.post("/api/drive/resume")
+def resume_drive():
+    if video is None or state.mode != "paused":
+        raise HTTPException(400, "Pause a drive before resuming.")
+    video.resume()
+    with state.lock:
+        state.mode = "driving"
+    event = {"type": "state", "mode": "driving", "drive_id": state.drive_id}
     bus.publish(event)
     return event
 
@@ -215,6 +244,9 @@ async def _frames():
             payload = blank
         else:
             frame, _ts = item
+            current_detector = detector
+            if current_detector is not None:
+                frame = current_detector.annotate(frame, _ts)
             ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
             payload = buf.tobytes() if ok else b""
         yield (

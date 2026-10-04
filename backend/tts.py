@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import threading
 
 from elevenlabs.client import ElevenLabs
 
@@ -10,17 +11,26 @@ from backend.config import ROOT, settings
 
 AUDIO = ROOT / "data" / "audio"
 _client: ElevenLabs | None = None
+_cache_lock = threading.Lock()
 
 
 def speak(text: str) -> str:
+    # Concurrent practice/replay requests should create only one cached file.
+    with _cache_lock:
+        return _speak_cached(text)
+
+
+def _speak_cached(text: str) -> str:
     """Return an /audio URL for this line, or an empty string."""
     cleaned = " ".join(text.split())
-    if not cleaned or not settings.elevenlabs_voice_id:
+    if not cleaned:
         return ""
     AUDIO.mkdir(parents=True, exist_ok=True)
     name = hashlib.sha256(cleaned.encode()).hexdigest()[:16] + ".mp3"
     path = AUDIO / name
     if not path.exists() or path.stat().st_size == 0:
+        if not settings.elevenlabs_voice_id or not settings.elevenlabs_api_key:
+            return ""
         global _client
         if _client is None:
             _client = ElevenLabs(api_key=settings.elevenlabs_api_key)
@@ -37,5 +47,7 @@ def speak(text: str) -> str:
             return ""
         if not data:
             return ""
-        path.write_bytes(data)
+        temporary = path.with_suffix(".mp3.tmp")
+        temporary.write_bytes(data)
+        temporary.replace(path)
     return f"/audio/{name}"

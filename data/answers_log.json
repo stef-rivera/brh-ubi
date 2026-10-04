@@ -115,5 +115,104 @@
     "answer": "40 miles per hour.",
     "grade": "correct",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:08:20.357748+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "school zone",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:08.025681+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "no turn on red",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:13.249903+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "road_work",
+    "question": "You passed this sign. What is ahead?",
+    "answer": "do not enter",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:16.250170+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "kids",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:09:22.755628+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "yield",
+    "question": "You passed this sign. Who goes first?",
+    "answer": "them, because of yield",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:10:26.397295+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "kids",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:11:22.195863+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "watch for children",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:11:27.904544+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "yes absolutely",
+    "grade": "incorrect",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:13:55.979616+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "kids",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:14:08.400217+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "school zone",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T08:14:15.733620+00:00",
+    "drive_id": "2026-10-04T04-06-31",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "no",
+    "grade": "partial",
+    "channel": "ui"
   }
 ]

@@ -44,7 +44,7 @@ class LocalTests(unittest.TestCase):
   with patch('backend.local_vision.log_detection') as log:d.finish(job,dict(sign_id='stop',sign_text='STOP',confidence=.9));log.assert_not_called()
   self.assertEqual(state.detections,[])
  def test_slow_audio_does_not_block_recognition(self):
-  d=self.detector();job=self.job('a');d.publish_pending(job)
+  d=self.detector();job=self.job('a');job['ocr']=[{'text':'STOP','confidence':.9}];d.publish_pending(job)
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
    d.finish(job,dict(sign_id='stop',sign_text='STOP',confidence=.9))
   self.assertEqual(d.audio_jobs.qsize(),1);self.assertEqual(state.detections[0]['recognition_status'],'resolved')

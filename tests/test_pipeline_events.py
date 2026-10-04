@@ -14,7 +14,7 @@ class PipelineEventTests(unittest.TestCase):
   self.log=patch('backend.local_vision.log_detection');self.log.start();self.addCleanup(self.log.stop)
  def make(self,voice=None):
   d=LocalDetector(SimpleNamespace(ended=False),model=Mock(),voice=voice or (lambda text:'/audio/test.mp3'))
-  job=dict(id='one',crop=np.zeros((50,50,3),dtype='uint8'),ts=1,box=[0,0,50,50],confidence=.9,labels={},created=time.monotonic(),thumb='')
+  job=dict(id='one',crop=np.zeros((50,50,3),dtype='uint8'),ts=1,box=[0,0,50,50],confidence=.9,labels={},ocr=[{'text':'SPEED LIMIT 40','confidence':.9}],created=time.monotonic(),thumb='')
   d.publish_pending(job);return d,job
  def test_speed_sign_is_announced(self):
   d,job=self.make();d.finish(job,dict(sign_id='speed_limit',sign_text='SPEED LIMIT 40',confidence=.9,value=40))
@@ -62,3 +62,18 @@ class PipelineEventTests(unittest.TestCase):
    video.write_bytes(b'clip-b')
    self.assertIsNone(RecognitionCache(str(video),path/'cache.json').lookup(job))
 if __name__=='__main__':unittest.main()
+
+class SpeechRepeatTests(unittest.TestCase):
+ def test_same_label_suppressed_but_different_speed_kept(self):
+  from backend.catalog import driving_announcement
+  state.drive_id='repeat-check';state.detections=[]
+  d=LocalDetector(SimpleNamespace(ended=False),model=Mock())
+  with patch('backend.local_vision.bus.publish'),patch('backend.local_vision.log_detection'):
+   for i,(stamp,value) in enumerate([(1,40),(2,40),(3,50)]):
+    job=dict(id=str(i),ts=stamp,created=time.monotonic(),box=[0,0,20,20],confidence=.8,thumb='')
+    d.publish_pending(job)
+    d.queue_announcement(job,driving_announcement('speed_limit',value))
+  self.assertEqual(d.audio_jobs.qsize(),2)
+  self.assertEqual(len(state.detections),3)
+  self.assertEqual(state.detections[1]['audio_status'],'skipped')
+  self.assertEqual(driving_announcement('speed_limit',50),'Speed limit 50.')
