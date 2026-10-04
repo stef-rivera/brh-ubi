@@ -214,5 +214,14 @@
     "answer": "no",
     "grade": "partial",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T10:06:41.248485+00:00",
+    "drive_id": "2026-10-04T06-05-04",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "no u turn",
+    "grade": "correct",
+    "channel": "ui"
   }
 ]

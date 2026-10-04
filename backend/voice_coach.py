@@ -29,22 +29,12 @@ def logged_sign_lines(detections: list[dict]) -> list[str]:
 
 
 def coach_instructions(detections: list[dict]) -> str:
-    """Short spoken practice from the signs on this drive, then one dispatcher question about those signs."""
+    """Practice the captured signs, then finish without a second role-play."""
     signs = logged_sign_lines(detections)
     if signs:
         passed = "Signs logged on this drive: " + "; ".join(signs) + "."
-        followup = (
-            "After those signs, become a dispatcher checking in on the radio. "
-            "Ask one practical question a driver would get about the signs that were actually logged. "
-            "Use only those signs. Do not mention anything that was not logged. "
-        )
     else:
-        passed = "No signs were logged on this drive."
-        followup = (
-            "Ask them to describe the road they just drove. "
-            "Then become a dispatcher checking in on the radio and ask one ordinary question, such as where they are headed. "
-            "Do not mention a sign they did not pass. "
-        )
+        passed = "No signs were logged on this drive. Say there are no signs to practice, then finish."
     return (
         "You are a calm American English coach talking with a truck driver who just parked. "
         "Speak in short sentences. Do not lecture. Do not list every sign at once. "
@@ -54,8 +44,8 @@ def coach_instructions(detections: list[dict]) -> str:
         "If signs were logged, ask about one of them, then the next, one question at a time. "
         "If they answer well, say so and move on. If they miss it, give the plain meaning once and ask them to say it back. "
         "If they ask to hear a sign in Spanish, give one short Spanish sentence, then return to English. "
-        f"{followup}"
-        "Stay in that scene for two or three short turns. Then tell them practice is done and stop asking questions."
+        "After practicing the logged signs, briefly say practice is complete and stop asking questions. "
+        "Do not switch roles, start a radio conversation, ask about their route, or add another activity."
     )
 
 
