@@ -72,6 +72,9 @@ function say(text, audioUrl, lang) {
 
 function setMode(name) {
   currentMode = name;
+  document.body.classList.remove("idle", "driving", "paused", "parked");
+  document.body.classList.add(name);
+  if (name !== "parked") document.querySelector("#practice-panel").hidden = true;
   pauseDrive.disabled = !["driving", "paused"].includes(name);
   pauseDrive.textContent = name === "paused" ? "Resume drive" : "Pause drive";
   if (name === "paused") clearCues();
@@ -308,7 +311,8 @@ park.addEventListener("click", async () => {
   if (!response.ok) { hint.textContent = body.detail || "Could not park."; return; }
   setMode("parked");
   hint.textContent = "Parked. Answer in English.";
-  panelTitle.textContent = "Parked practice";
+  panelTitle.textContent = "Sign log";
+  document.querySelector("#practice-panel").hidden = false;
   log.hidden = false;
   if (!body.next || body.next.type === "practice_done") {
     practice.hidden = false;
@@ -352,6 +356,7 @@ function showQuestion(item) {
   const duplicate = key === lastQuestionKey;
   lastQuestionKey = key;
   practice.hidden = false;
+  document.querySelector("#practice-panel").hidden = false;
   log.hidden = false;
   answer.disabled = false;
   progress.textContent = `${item.index} / ${item.total}`;
@@ -775,3 +780,15 @@ async function saveSignFeedback(key, action) {
   }
 }
 loadFeedbackCatalog();
+
+function setLogOpen(open) {
+  document.querySelector('#panel').hidden = !open;
+  document.querySelector('#log-toggle').setAttribute('aria-expanded', String(open));
+  document.body.classList.toggle('log-open', open);
+}
+document.querySelector('#log-toggle').addEventListener('click', () => setLogOpen(document.querySelector('#panel').hidden));
+document.querySelector('#log-close').addEventListener('click', () => {setLogOpen(false); document.querySelector('#log-toggle').focus();});
+document.querySelector('#practice-close').addEventListener('click', () => {document.querySelector('#practice-panel').hidden = true; clearCues();});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') {setLogOpen(false); document.querySelector('#practice-panel').hidden = true;}
+});

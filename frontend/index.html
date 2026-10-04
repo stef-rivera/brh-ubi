@@ -3,27 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Road English Coach</title>
+  <title>ubi</title>
   <link rel="stylesheet" href="/assets/styles.css" />
 </head>
-<body>
-  <header>
-    <div>
-      <p class="eyebrow">Road English Coach</p>
-      <h1>Signs from this drive</h1>
-    </div>
-    <div class="status" id="mode">IDLE</div>
-  </header>
-
+<body class="idle">
+  <header><p class="wordmark">ubi</p></header>
+  <button id="log-toggle" type="button" aria-expanded="false" aria-controls="panel">Sign log</button>
   <main>
     <section class="stage">
       <img id="video" alt="Dashcam view" />
-      <section class="connection" aria-label="Detection settings">
-        <label for="clip">Demo video</label>
-        <select id="clip">
-          <option value="day">Day drive</option>
-          <option value="night" selected>Night drive</option>
-        </select>
+      <div class="hud">
+        <div class="status" id="mode">IDLE</div>
+        <div class="controls">
+          <label class="clip-label" for="clip">Video
+            <select id="clip"><option value="day">Day drive</option><option value="night" selected>Night drive</option></select>
+          </label>
+          <button id="start-file" type="button">Start drive</button>
+          <button id="pause-drive" type="button" disabled>Pause drive</button>
+          <button id="park" type="button" disabled>Park</button>
+        </div>
+        <p class="hint" id="audio-status" role="status">Voice starts when you press Start drive.</p>
+        <p class="hint" id="hint">Choose a video, then start your drive.</p>
+      </div>
+    </section>
+      <section class="connection" aria-label="Detection settings" hidden>
         <label for="detector">Sign reader</label>
         <select id="detector"><option value="local">Local vision</option></select>
         <div id="local-controls">
@@ -44,17 +47,8 @@
           <a class="hint" href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener noreferrer">Manage ChatGPT usage and app limits</a>
         </div>
       </section>
-      <div class="controls">
-        <button id="start-file" type="button" disabled>Start drive</button>
-        <button id="pause-drive" type="button" class="secondary" disabled>Pause drive</button>
-        <button id="park" type="button" class="secondary" disabled>Park</button>
-      </div>
-      <p class="hint" id="audio-status" role="status">Voice starts when you press Start drive.</p>
-      <p class="hint" id="hint">Press Start drive. The first click also turns the voice on.</p>
-    </section>
-
-    <aside id="panel">
-      <h2 id="panel-title">Sign log</h2>
+    <aside id="panel" aria-label="Sign log" hidden>
+      <div class="panel-heading"><h2 id="panel-title">Sign log</h2><button id="log-close" class="secondary" type="button" aria-label="Close sign log">Close</button></div>
       <p id="playback-status" class="hint" role="status"></p>
       <p id="pipeline-status" class="hint" role="status"></p>
       <div class="sign-log-tabs" role="tablist" aria-label="Sign log categories">
@@ -63,6 +57,10 @@
       </div>
       <p id="log-empty" class="hint" hidden></p>
       <div id="log" class="log" role="tabpanel" aria-labelledby="log-audio-tab"></div>
+
+    </aside>
+    <section id="practice-panel" aria-label="Parked practice" hidden>
+      <div class="panel-heading"><h2>Parked practice</h2><button id="practice-close" type="button" class="secondary">Close practice</button></div>
       <form id="practice" class="practice" hidden>
         <p id="progress"></p>
         <img id="q-thumb" alt="" hidden />
@@ -74,7 +72,7 @@
         </div>
         <p id="result"></p>
       </form>
-    </aside>
+    </section>
   </main>
   <script src="/assets/app.js"></script>
 </body>
