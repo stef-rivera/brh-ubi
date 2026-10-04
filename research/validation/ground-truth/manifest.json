@@ -1,0 +1,199 @@
+{
+  "video_path": "/Users/temiadebowale/Documents/brh-ubi/data/drive.mp4",
+  "video_sha256": "d110d40c05ab37e205ee5c3ac9287732eb9abef714b50c234e35481015a6b6c2",
+  "method": "Six compact human-confirmed traffic-sign examples from real clip. Not exhaustive drive annotations; no claim of full precision/recall. Native crops unannotated and unscaled.",
+  "entries": [
+    {
+      "id": "school",
+      "time_seconds": 0.93,
+      "label": "school_zone",
+      "manual_meaning": "school crossing ahead",
+      "text": "AHEAD",
+      "value": null,
+      "box": [
+        900,
+        255,
+        1002,
+        355
+      ],
+      "uncertain": [
+        "No active school speed restriction established."
+      ],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/school-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/school-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/school-context.png",
+      "crop_native_size": [
+        102,
+        100
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    },
+    {
+      "id": "no_turn",
+      "time_seconds": 9.16,
+      "label": "no_turn_on_red",
+      "manual_meaning": "no turn on red",
+      "text": "NO TURN ON RED",
+      "value": null,
+      "box": [
+        885,
+        345,
+        942,
+        408
+      ],
+      "uncertain": [
+        "Supplementary small lines not confidently readable."
+      ],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/no_turn-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/no_turn-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/no_turn-context.png",
+      "crop_native_size": [
+        57,
+        63
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    },
+    {
+      "id": "speed_first",
+      "time_seconds": 17.35,
+      "label": "speed_limit",
+      "manual_meaning": "speed limit40",
+      "text": "SPEED LIMIT 40",
+      "value": 40,
+      "box": [
+        865,
+        320,
+        919,
+        389
+      ],
+      "uncertain": [],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_first-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_first-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_first-context.png",
+      "crop_native_size": [
+        54,
+        69
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    },
+    {
+      "id": "speed_second",
+      "time_seconds": 36.0,
+      "label": "speed_limit",
+      "manual_meaning": "second physical speed limit40 sign",
+      "text": "SPEED LIMIT 40",
+      "value": 40,
+      "box": [
+        930,
+        347,
+        980,
+        400
+      ],
+      "uncertain": [],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_second-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_second-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/speed_second-context.png",
+      "crop_native_size": [
+        50,
+        53
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    },
+    {
+      "id": "road_work",
+      "time_seconds": 39.3,
+      "label": "road_work",
+      "manual_meaning": "road work ahead; expect delays",
+      "text": "ROAD WORK AHEAD EXPECT DELAYS",
+      "value": null,
+      "box": [
+        808,
+        328,
+        900,
+        393
+      ],
+      "uncertain": [
+        "39.89s pipeline crop was partly clipped."
+      ],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/road_work-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/road_work-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/road_work-context.png",
+      "crop_native_size": [
+        92,
+        65
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    },
+    {
+      "id": "crossing",
+      "time_seconds": 57.21,
+      "label": "pedestrian_bicycle_crossing",
+      "manual_meaning": "shared bicycle/pedestrian crossing ahead",
+      "text": "AHEAD",
+      "value": null,
+      "box": [
+        997,
+        179,
+        1142,
+        326
+      ],
+      "uncertain": [
+        "Supplementary upper plaque wording unclear. Do not classify as school crossing."
+      ],
+      "crop_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/crossing-sign.png",
+      "frame_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/crossing-frame.png",
+      "context_path": "/Users/temiadebowale/Documents/brh-ubi/research/validation/ground-truth/crossing-context.png",
+      "crop_native_size": [
+        145,
+        147
+      ],
+      "box_source": "Approximate manually reviewed coordinates, xyxy pixels in native1280x720 decoded frame",
+      "ground_truth_source": "Human visual reading from original video, no generated/model label used as evidence",
+      "split": "evaluation_only_do_not_train"
+    }
+  ],
+  "excluded_or_uncertain": [
+    {
+      "time_seconds": 19.74,
+      "reason": "Real street blade but exact spelling uncertain"
+    },
+    {
+      "time_seconds": 25.53,
+      "reason": "Real street blade but exact spelling uncertain"
+    },
+    {
+      "time_seconds": 33.55,
+      "reason": "Real street blade but exact spelling uncertain"
+    },
+    {
+      "time_seconds": 17.45,
+      "reason": "Detector113 captured building fascia, not traffic sign"
+    },
+    {
+      "time_seconds": 52.8,
+      "reason": "Business/property board, not traffic instruction"
+    },
+    {
+      "time_seconds": 55.77,
+      "reason": "Different business/property board, not traffic instruction"
+    },
+    {
+      "time_seconds": 56.89,
+      "reason": "AHEAD plaque fragment belongs to57.21 crossing assembly"
+    },
+    {
+      "time_seconds": 57.11,
+      "reason": "Supplementary plaque fragment belongs to57.21 crossing assembly"
+    }
+  ]
+}

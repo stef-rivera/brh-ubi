@@ -261,7 +261,7 @@ def read_frame(frame, model: str, crop_mode: bool = False) -> list[dict]:
               'Do not explain laws or invent sign meanings. Return only JSON: {"signs":[{"sign_id":"...","sign_text":"...","box_2d":[ymin,xmin,ymax,xmax],"confidence":0.9}]}. '
               'Coordinates must be normalized from 0 to 1000, with a tight box around the sign. Use an empty signs array if none are visible. Catalog:\n'+prompt_list())
     if crop_mode:
-        prompt = ('This is a crop of ONE candidate US road sign. Identify its symbol and read only clearly legible text. '
+        prompt = ('This image shows up to three views of ONE candidate US road sign. Combine evidence across the views. Identify its symbol and read only clearly legible text. '
                   'Do not confuse STOP (red octagon) with DO NOT ENTER (red circle with white horizontal bar). '
                   'Do not confuse a two-person school crossing with a bicycle/pedestrian crossing. '
                   'Business advertisements are not road signs; return an empty signs array for those. '

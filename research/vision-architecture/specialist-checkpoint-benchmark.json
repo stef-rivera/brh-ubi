@@ -1,0 +1,545 @@
+{
+  "lisa47": {
+    "classes": {
+      "0": "addedLane",
+      "1": "curveLeft",
+      "2": "curveRight",
+      "3": "dip",
+      "4": "doNotEnter",
+      "5": "doNotPass",
+      "6": "intersection",
+      "7": "keepRight",
+      "8": "laneEnds",
+      "9": "merge",
+      "10": "noLeftTurn",
+      "11": "noRightTurn",
+      "12": "pedestrianCrossing",
+      "13": "rampSpeedAdvisory20",
+      "14": "rampSpeedAdvisory35",
+      "15": "rampSpeedAdvisory40",
+      "16": "rampSpeedAdvisory45",
+      "17": "rampSpeedAdvisory50",
+      "18": "rampSpeedAdvisoryUrdbl",
+      "19": "rightLaneMustTurn",
+      "20": "roundabout",
+      "21": "school",
+      "22": "schoolSpeedLimit25",
+      "23": "signalAhead",
+      "24": "slow",
+      "25": "speedLimit15",
+      "26": "speedLimit25",
+      "27": "speedLimit30",
+      "28": "speedLimit35",
+      "29": "speedLimit40",
+      "30": "speedLimit45",
+      "31": "speedLimit50",
+      "32": "speedLimit55",
+      "33": "speedLimit65",
+      "34": "speedLimitUrdbl",
+      "35": "stop",
+      "36": "stopAhead",
+      "37": "thruMergeLeft",
+      "38": "thruMergeRight",
+      "39": "thruTrafficMergeLeft",
+      "40": "truckSpeedLimit55",
+      "41": "turnLeft",
+      "42": "turnRight",
+      "43": "yield",
+      "44": "yieldAhead",
+      "45": "zoneAhead25",
+      "46": "zoneAhead45"
+    },
+    "evaluations": [
+      {
+        "id": "school",
+        "label": "school_zone",
+        "results": {
+          "frame": {
+            "ms": 34.7,
+            "predictions": [
+              {
+                "label": "school",
+                "confidence": 0.896,
+                "box": [
+                  909.5606689453125,
+                  260.674072265625,
+                  994.1680908203125,
+                  339.68646240234375
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 140.3,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "no_turn",
+        "label": "no_turn_on_red",
+        "results": {
+          "frame": {
+            "ms": 63.8,
+            "predictions": [
+              {
+                "label": "speedLimit35",
+                "confidence": 0.137,
+                "box": [
+                  890.923828125,
+                  345.98211669921875,
+                  936.665771484375,
+                  399.95965576171875
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 14.4,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "speed_first",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 36.7,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.679,
+                "box": [
+                  857.0263061523438,
+                  321.22747802734375,
+                  908.2836303710938,
+                  378.97381591796875
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 81.9,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "speed_second",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 37.4,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.93,
+                "box": [
+                  939.6898803710938,
+                  348.3797607421875,
+                  979.1526489257812,
+                  393.35894775390625
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 14.1,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "road_work",
+        "label": "road_work",
+        "results": {
+          "frame": {
+            "ms": 36.9,
+            "predictions": [
+              {
+                "label": "rightLaneMustTurn",
+                "confidence": 0.213,
+                "box": [
+                  810.834716796875,
+                  329.2228698730469,
+                  896.335693359375,
+                  385.4561462402344
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 86.9,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "crossing",
+        "label": "pedestrian_bicycle_crossing",
+        "results": {
+          "frame": {
+            "ms": 36.8,
+            "predictions": [
+              {
+                "label": "pedestrianCrossing",
+                "confidence": 0.701,
+                "box": [
+                  1009.9744873046875,
+                  180.94415283203125,
+                  1133.4942626953125,
+                  305.87249755859375
+                ]
+              },
+              {
+                "label": "addedLane",
+                "confidence": 0.111,
+                "box": [
+                  1010.2846069335938,
+                  181.76083374023438,
+                  1130.97998046875,
+                  302.89215087890625
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 13.9,
+            "predictions": []
+          }
+        }
+      }
+    ]
+  },
+  "jc11": {
+    "classes": {
+      "0": "doNotEnter",
+      "1": "noLeftTurn",
+      "2": "noRightTurn",
+      "3": "pedestrianCrossing",
+      "4": "speedLimit15",
+      "5": "speedLimit20",
+      "6": "speedLimit25",
+      "7": "speedLimit30",
+      "8": "speedLimit35",
+      "9": "speedLimit40",
+      "10": "speedLimit45",
+      "11": "speedLimit50",
+      "12": "speedLimit55",
+      "13": "speedLimit60",
+      "14": "speedLimit65",
+      "15": "speedLimit70",
+      "16": "speedLimit75",
+      "17": "speedLimit80",
+      "18": "speedLimit85",
+      "19": "stop",
+      "20": "yield"
+    },
+    "evaluations": [
+      {
+        "id": "school",
+        "label": "school_zone",
+        "results": {
+          "frame": {
+            "ms": 18.6,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 282.5,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "no_turn",
+        "label": "no_turn_on_red",
+        "results": {
+          "frame": {
+            "ms": 20.9,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 14.2,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "speed_first",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 22.0,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.793,
+                "box": [
+                  859.5158081054688,
+                  320.185791015625,
+                  905.2910766601562,
+                  378.0615234375
+                ]
+              },
+              {
+                "label": "speedLimit45",
+                "confidence": 0.235,
+                "box": [
+                  860.066650390625,
+                  320.49639892578125,
+                  905.1588134765625,
+                  377.94580078125
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 145.1,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.737,
+                "box": [
+                  0.3933570384979248,
+                  4.9621782302856445,
+                  38.644996643066406,
+                  54.610111236572266
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "speed_second",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 21.7,
+            "predictions": [
+              {
+                "label": "speedLimit45",
+                "confidence": 0.662,
+                "box": [
+                  941.3798828125,
+                  347.84478759765625,
+                  977.8743896484375,
+                  393.4378662109375
+                ]
+              },
+              {
+                "label": "speedLimit40",
+                "confidence": 0.552,
+                "box": [
+                  941.551513671875,
+                  347.9981689453125,
+                  977.7314453125,
+                  393.42926025390625
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 12.8,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.839,
+                "box": [
+                  11.900875091552734,
+                  5.697484970092773,
+                  46.79236602783203,
+                  42.96475601196289
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "road_work",
+        "label": "road_work",
+        "results": {
+          "frame": {
+            "ms": 21.1,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 145.7,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "crossing",
+        "label": "pedestrian_bicycle_crossing",
+        "results": {
+          "frame": {
+            "ms": 21.0,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 12.6,
+            "predictions": []
+          }
+        }
+      }
+    ]
+  },
+  "jc26": {
+    "classes": {
+      "0": "doNotEnter",
+      "1": "noLeftTurn",
+      "2": "noRightTurn",
+      "3": "pedestrianCrossing",
+      "4": "speedLimit15",
+      "5": "speedLimit20",
+      "6": "speedLimit25",
+      "7": "speedLimit30",
+      "8": "speedLimit35",
+      "9": "speedLimit40",
+      "10": "speedLimit45",
+      "11": "speedLimit50",
+      "12": "speedLimit55",
+      "13": "speedLimit60",
+      "14": "speedLimit65",
+      "15": "speedLimit70",
+      "16": "speedLimit75",
+      "17": "speedLimit80",
+      "18": "speedLimit85",
+      "19": "stop",
+      "20": "yield"
+    },
+    "evaluations": [
+      {
+        "id": "school",
+        "label": "school_zone",
+        "results": {
+          "frame": {
+            "ms": 18.4,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 90.3,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "no_turn",
+        "label": "no_turn_on_red",
+        "results": {
+          "frame": {
+            "ms": 22.7,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 12.1,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "speed_first",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 22.0,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.769,
+                "box": [
+                  860.034423828125,
+                  318.05767822265625,
+                  906.667236328125,
+                  379.70050048828125
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 62.2,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.88,
+                "box": [
+                  0.0,
+                  3.6505002975463867,
+                  38.43320846557617,
+                  54.078330993652344
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "speed_second",
+        "label": "speed_limit",
+        "results": {
+          "frame": {
+            "ms": 23.9,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.894,
+                "box": [
+                  941.5018920898438,
+                  348.44140625,
+                  977.9531860351562,
+                  393.7352294921875
+                ]
+              }
+            ]
+          },
+          "crop": {
+            "ms": 13.5,
+            "predictions": [
+              {
+                "label": "speedLimit40",
+                "confidence": 0.875,
+                "box": [
+                  12.21218490600586,
+                  4.7054572105407715,
+                  47.54066848754883,
+                  43.14990997314453
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "road_work",
+        "label": "road_work",
+        "results": {
+          "frame": {
+            "ms": 20.9,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 33.7,
+            "predictions": []
+          }
+        }
+      },
+      {
+        "id": "crossing",
+        "label": "pedestrian_bicycle_crossing",
+        "results": {
+          "frame": {
+            "ms": 20.6,
+            "predictions": []
+          },
+          "crop": {
+            "ms": 12.0,
+            "predictions": []
+          }
+        }
+      }
+    ]
+  }
+}

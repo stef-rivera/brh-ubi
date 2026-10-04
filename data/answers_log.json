@@ -43,5 +43,77 @@
     "answer": "left",
     "grade": "correct",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:39.870485+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "Watch for school children",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:53.739185+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "no_turn_on_red",
+    "question": "Can you turn while the traffic signal is red at this sign?",
+    "answer": "No, do not turn on red",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:05:58.780861+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "road_work",
+    "question": "You passed this sign. What is ahead?",
+    "answer": "Construction workers and road work",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:06:04.038647+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "Pedestrians and bicycles",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:06:08.643198+00:00",
+    "drive_id": "2026-10-03T23-02-02",
+    "sign_id": "speed_limit",
+    "question": "What maximum speed, in miles per hour, is shown on this sign?",
+    "answer": "40",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:04.735268+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "school_zone",
+    "question": "You passed this sign. Why should you slow down?",
+    "answer": "A school is nearby. Watch for children.",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:12.099278+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "bicycle_pedestrian_crossing",
+    "question": "Who should you watch for near this crossing?",
+    "answer": "People walking and riding bicycles.",
+    "grade": "correct",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T03:41:19.243134+00:00",
+    "drive_id": "2026-10-03T23-38-32",
+    "sign_id": "speed_limit",
+    "question": "What maximum speed, in miles per hour, is shown on this sign?",
+    "answer": "40 miles per hour.",
+    "grade": "correct",
+    "channel": "ui"
   }
 ]

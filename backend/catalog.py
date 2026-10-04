@@ -33,3 +33,13 @@ def prompt_list() -> str:
 def is_critical(sign_id: str) -> bool:
     entry = get(sign_id)
     return bool(entry and entry.get("safety_critical"))
+
+
+def announcement(sign_id: str, value: int | None = None) -> str:
+    """Describe a recognized sign without implying it applies to this lane."""
+    entry = get(sign_id)
+    if not entry:
+        return ""
+    if sign_id == "speed_limit" and value is not None:
+        return f"Speed limit {value} sign detected."
+    return f"{entry['sign_text'].capitalize()} sign detected."

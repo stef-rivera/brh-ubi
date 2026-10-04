@@ -47,3 +47,17 @@ def log_answer(row: dict) -> None:
 def detections_for(drive_id: str) -> list[dict]:
     with _lock:
         return [row for row in _read(LOG_PATH) if row.get("drive_id") == drive_id]
+
+
+def save_detection(row: dict) -> None:
+    """Keep the final recognition/audio state for a candidate without duplicate log rows."""
+    with _lock:
+        rows = _read(LOG_PATH)
+        event_id = row.get("event_id")
+        for index, existing in enumerate(rows):
+            if event_id and existing.get("event_id") == event_id and existing.get("drive_id") == row.get("drive_id"):
+                rows[index] = row
+                break
+        else:
+            rows.append(row)
+        _write(LOG_PATH, rows)

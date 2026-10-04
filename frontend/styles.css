@@ -149,3 +149,13 @@ button:disabled { opacity: 0.45; cursor: default; }
 .connection select { background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; max-width: 100%; font: inherit; }
 #chatgpt-test { margin-top: 10px; }
 a { color: var(--muted); }
+
+.card { padding: 10px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.card-body { min-width: 0; }
+.meaning { margin: 6px 0; }
+.recognition-reason, .audio-detail { margin: 6px 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.card.pending { opacity: .85; }
+.card.unresolved strong { color: var(--muted); }
+.replay { margin-top: 8px; padding: 6px 10px; font-size: 13px; }
+#log { max-height: 620px; overflow-y: auto; }
+#practice:not([hidden]) { padding-top: 16px; border-top: 1px solid var(--line); }

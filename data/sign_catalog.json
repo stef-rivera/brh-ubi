@@ -9,7 +9,10 @@
     "questions": [
       {
         "q": "You passed this sign. What must you do?",
-        "answer_keywords": ["stop", "complete stop"]
+        "answer_keywords": [
+          "stop",
+          "complete stop"
+        ]
       }
     ],
     "verified": false
@@ -24,7 +27,12 @@
     "questions": [
       {
         "q": "You passed this sign. Who goes first?",
-        "answer_keywords": ["yield", "other", "right of way", "slow"]
+        "answer_keywords": [
+          "yield",
+          "other",
+          "right of way",
+          "slow"
+        ]
       }
     ],
     "verified": false
@@ -39,7 +47,12 @@
     "questions": [
       {
         "q": "You passed this sign. What does the number tell you?",
-        "answer_keywords": ["speed", "limit", "faster", "maximum"]
+        "answer_keywords": [
+          "speed",
+          "limit",
+          "faster",
+          "maximum"
+        ]
       }
     ],
     "verified": false
@@ -54,7 +67,12 @@
     "questions": [
       {
         "q": "You passed this sign. Can you turn in here?",
-        "answer_keywords": ["no", "do not", "wrong way", "enter"]
+        "answer_keywords": [
+          "no",
+          "do not",
+          "wrong way",
+          "enter"
+        ]
       }
     ],
     "verified": false
@@ -69,7 +87,11 @@
     "questions": [
       {
         "q": "You passed this sign. Which way does traffic go?",
-        "answer_keywords": ["one way", "arrow", "one direction"]
+        "answer_keywords": [
+          "one way",
+          "arrow",
+          "one direction"
+        ]
       }
     ],
     "verified": false
@@ -84,7 +106,9 @@
     "questions": [
       {
         "q": "You passed this sign. Which turn is not allowed?",
-        "answer_keywords": ["left"]
+        "answer_keywords": [
+          "left"
+        ]
       }
     ],
     "verified": false
@@ -99,7 +123,11 @@
     "questions": [
       {
         "q": "You passed this sign. What should you do?",
-        "answer_keywords": ["merge", "lane ends", "change lane"]
+        "answer_keywords": [
+          "merge",
+          "lane ends",
+          "change lane"
+        ]
       }
     ],
     "verified": false
@@ -114,7 +142,11 @@
     "questions": [
       {
         "q": "You passed this sign. What is ahead?",
-        "answer_keywords": ["work", "construction", "workers"]
+        "answer_keywords": [
+          "work",
+          "construction",
+          "workers"
+        ]
       }
     ],
     "verified": false
@@ -129,7 +161,11 @@
     "questions": [
       {
         "q": "You passed this sign. What crosses the road here?",
-        "answer_keywords": ["train", "railroad", "tracks"]
+        "answer_keywords": [
+          "train",
+          "railroad",
+          "tracks"
+        ]
       }
     ],
     "verified": false
@@ -144,7 +180,53 @@
     "questions": [
       {
         "q": "You passed this sign. Why should you slow down?",
-        "answer_keywords": ["school", "children", "kids"]
+        "answer_keywords": [
+          "school",
+          "children",
+          "kids"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "bicycle_pedestrian_crossing",
+    "sign_text": "BICYCLE AND PEDESTRIAN CROSSING",
+    "meaning": "A bicycle and pedestrian crossing is ahead. Watch for people walking or riding bicycles.",
+    "meaning_es": "Hay un cruce de bicicletas y peatones más adelante. Presta atención a las personas que caminan o van en bicicleta.",
+    "cue_text": "Bicycle and pedestrian crossing sign detected.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Who should you watch for near this crossing?",
+        "answer_keywords": [
+          "pedestrians",
+          "people walking",
+          "bicycles",
+          "cyclists",
+          "bikes"
+        ]
+      }
+    ],
+    "verified": false
+  },
+  {
+    "id": "no_turn_on_red",
+    "sign_text": "NO TURN ON RED",
+    "meaning": "Do not turn while the traffic signal is red.",
+    "meaning_es": "No gires mientras el semáforo esté en rojo.",
+    "cue_text": "No turn on red sign detected.",
+    "safety_critical": true,
+    "questions": [
+      {
+        "q": "Can you turn while the traffic signal is red at this sign?",
+        "answer_keywords": [
+          "no",
+          "do not",
+          "cannot",
+          "wait",
+          "green"
+        ]
       }
     ],
     "verified": false

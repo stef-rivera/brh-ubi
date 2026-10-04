@@ -5,6 +5,10 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.local_vision import LocalDetector
 
 import cv2
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -13,9 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.config import ROOT, settings
-from backend.detector import GeminiDetector
-from backend.chatgpt_routes import router as chatgpt_router, require_tested
-from backend import chatgpt_client
+from backend.chatgpt_routes import router as chatgpt_router
 from backend.events import bus
 from backend.practice import build_session, current_question, submit
 from backend.state import state
@@ -29,7 +31,7 @@ THUMBS.mkdir(parents=True, exist_ok=True)
 AUDIO.mkdir(parents=True, exist_ok=True)
 
 video: VideoSource | None = None
-detector: GeminiDetector | None = None
+detector: LocalDetector | None = None
 
 
 def _stop_pipeline() -> None:
@@ -95,10 +97,8 @@ def api_state():
 @app.post("/api/drive/start")
 def start_drive(body: StartBody):
     global video, detector
-    if body.detector not in {"gemini", "chatgpt", "local"}:
-        raise HTTPException(400, "Unknown detector.")
-    if body.detector == "chatgpt" or (body.detector == "local" and body.cloud_assist):
-        require_tested(body.model)
+    if body.detector != "local" or body.cloud_assist:
+        raise HTTPException(400, "Live sign recognition runs locally. Cloud recognition is disabled.")
     _stop_pipeline()
     try:
         source = _resolve_source(body.source)
@@ -118,14 +118,9 @@ def start_drive(body: StartBody):
         state.detections = []
         state.practice_items = []
         state.practice_index = 0
-    reader = (lambda frame: chatgpt_client.read_frame(frame, body.model)) if body.detector == "chatgpt" else None
     try:
-        if body.detector == "local":
-            from backend.local_vision import LocalDetector
-            fallback = (lambda crop: chatgpt_client.read_frame(crop, body.model, crop_mode=True)) if body.cloud_assist else None
-            detector = LocalDetector(video, fallback=fallback)
-        else:
-            detector = GeminiDetector(video, reader=reader, provider=body.detector)
+        from backend.local_vision import LocalDetector
+        detector = LocalDetector(video)
         video.start()
         detector.start()
     except Exception as exc:

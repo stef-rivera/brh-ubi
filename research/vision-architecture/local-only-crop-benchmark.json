@@ -1,0 +1,160 @@
+{
+  "method": "Held-out native crops; one view only, so symbol scores diagnostically reported, not live acceptance. Live requires two temporal views. Not a full accuracy estimate.",
+  "rows": [
+    {
+      "id": "school",
+      "expected": "school_zone",
+      "ocr": [],
+      "ocr_result": null,
+      "top_symbol": "school_zone",
+      "top_description": "school crossing sign with two children walking",
+      "similarity": 0.4033203125,
+      "margin": 0.0595703125,
+      "seconds": 0.48085441600414924
+    },
+    {
+      "id": "no_turn",
+      "expected": "no_turn_on_red",
+      "ocr": [],
+      "ocr_result": null,
+      "top_symbol": null,
+      "top_description": "blank blurry traffic sign",
+      "similarity": 0.27490234375,
+      "margin": 0.007080078125,
+      "seconds": 0.03225241700420156
+    },
+    {
+      "id": "speed_first",
+      "expected": "speed_limit",
+      "ocr": [
+        {
+          "text": "SPIEED",
+          "confidence": 1.0
+        },
+        {
+          "text": "LIMI",
+          "confidence": 1.0
+        },
+        {
+          "text": "40",
+          "confidence": 1.0
+        }
+      ],
+      "ocr_result": null,
+      "top_symbol": null,
+      "top_description": "speed limit sign",
+      "similarity": 0.32177734375,
+      "margin": 0.025390625,
+      "seconds": 0.0800691670156084
+    },
+    {
+      "id": "speed_second",
+      "expected": "speed_limit",
+      "ocr": [],
+      "ocr_result": null,
+      "top_symbol": null,
+      "top_description": "speed limit sign",
+      "similarity": 0.338623046875,
+      "margin": 0.023193359375,
+      "seconds": 0.026943833014229313
+    },
+    {
+      "id": "road_work",
+      "expected": "road_work",
+      "ocr": [],
+      "ocr_result": null,
+      "top_symbol": null,
+      "top_description": "road work sign",
+      "similarity": 0.34130859375,
+      "margin": 0.027587890625,
+      "seconds": 0.03756733299815096
+    },
+    {
+      "id": "crossing",
+      "expected": "bicycle_pedestrian_crossing",
+      "ocr": [],
+      "ocr_result": null,
+      "top_symbol": "bicycle_pedestrian_crossing",
+      "top_description": "bicycle and pedestrian crossing sign",
+      "similarity": 0.343505859375,
+      "margin": 0.03857421875,
+      "seconds": 0.031619207991752774
+    },
+    {
+      "id": "raw-113.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "street name sign",
+      "similarity": 0.2435302734375,
+      "margin": 0.003173828125,
+      "seconds": 0.012283208983717486
+    },
+    {
+      "id": "raw-218.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "advertising business sign",
+      "similarity": 0.277587890625,
+      "margin": 0.0263671875,
+      "seconds": 0.011066542007029057
+    },
+    {
+      "id": "raw-246.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "street name sign",
+      "similarity": 0.265869140625,
+      "margin": 0.00927734375,
+      "seconds": 0.012809624982764944
+    },
+    {
+      "id": "raw-255.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "do not enter sign",
+      "similarity": 0.251220703125,
+      "margin": 0.002197265625,
+      "seconds": 0.011153458006447181
+    },
+    {
+      "id": "raw-259.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "yellow AHEAD plaque",
+      "similarity": 0.240234375,
+      "margin": 0.005859375,
+      "seconds": 0.010922207991825417
+    },
+    {
+      "id": "raw-119.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "blank blurry traffic sign",
+      "similarity": 0.294921875,
+      "margin": 0.01025390625,
+      "seconds": 0.009150708996457979
+    },
+    {
+      "id": "raw-124.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "street name sign",
+      "similarity": 0.305908203125,
+      "margin": 0.013916015625,
+      "seconds": 0.0085775830084458
+    },
+    {
+      "id": "raw-145.png",
+      "expected": "abstain",
+      "top_symbol": null,
+      "top_description": "blank blurry traffic sign",
+      "similarity": 0.277099609375,
+      "margin": 0.01806640625,
+      "seconds": 0.008095291996141896
+    }
+  ],
+  "model": "OpenAI CLIP ViT-B/32, official pretrained weights loaded locally through pinned Ultralytics-compatible CLIP fork",
+  "model_source": "https://github.com/openai/CLIP",
+  "acceptance": "Two separate temporal views; supported top class; cosine >=0.32; margin >=0.025. Similarities are not calibrated probabilities.",
+  "reproduce": ".venv-local/bin/python scripts/benchmark_local_reading.py"
+}
