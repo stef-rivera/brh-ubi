@@ -65,6 +65,25 @@ class PhotonTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.addCleanup(self.monkeypatch.undo)
 
+    def test_real_drive_subfolder_picture_and_escape_rejected(self):
+        root=Path(self.temp.name)
+        self.monkeypatch.setattr(photon,'ROOT',root)
+        folder=root/'data'/'thumbs'/'drive-test'
+        folder.mkdir(parents=True)
+        (folder/'sign.jpg').write_bytes(b'captured-jpeg')
+        picture=photon._image({'thumb_url':'/thumbs/drive-test/sign.jpg'})
+        assert picture and picture['mimeType']=='image/jpeg'
+        assert photon._image({'thumb_url':'/thumbs/../../../outside.jpg'}) is None
+
+    def test_greeting_repeats_question_without_grade_or_advancement(self):
+        _,sent,answers=self.fixture
+        session=start()['session_id']
+        response=answer(session,'Hi')
+        assert response['greeting'] and response['index']==1 and not answers
+        assert 'Welcome to ubi' in sent[-1]['text']
+        duplicate=answer(session,'Hi')
+        assert duplicate['duplicate'] and len(sent)==2
+
     def test_start_snapshot_and_duplicate_preserve_browser_quiz(self):
         setup=self.fixture
         monkeypatch=self.monkeypatch

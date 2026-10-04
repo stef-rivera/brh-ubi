@@ -136,7 +136,7 @@ def _image(item: dict) -> dict | None:
         return None
     root = (ROOT / 'data' / 'thumbs').resolve()
     path = (root / thumb.removeprefix('/thumbs/')).resolve()
-    if path.parent != root or path.suffix.lower() not in {'.jpg', '.jpeg', '.png'} or not path.is_file():
+    if not path.is_relative_to(root) or path.suffix.lower() not in {'.jpg', '.jpeg', '.png'} or not path.is_file():
         return None
     if path.stat().st_size > 2_000_000:
         return None
@@ -242,6 +242,15 @@ async def reply(request: ReplyRequest, authorization: str = Header(default='')):
             return _view(session, connected=True, message='Practice stopped.')
         if session['status'] in {'completed', 'stopped'} or request.question_index != session['index']:
             return {**_view(session), 'ignored': True, 'message': 'This reply is for an earlier question.'}
+        if request.answer.strip().casefold().strip('!.') in {'hi', 'hello', 'hey', 'start', 'ready', 'hi ubi'}:
+            session['seen_messages'].append(request.message_id)
+            question = _question(session)
+            question['idempotency_key'] = f"{session['session_id']}:welcome:{len(session['seen_messages'])}"
+            question['text'] = 'Welcome to ubi. Answer the question below using the attached sign picture.\n' + question['text']
+            session['outbox'] = [question]
+            _save()
+            await _deliver(session)
+            return {**_view(session, connected=True), 'greeting': True}
         item = session['items'][session['index']]
         result = grade(item, request.answer)
         answer = dict(ts=datetime.now(timezone.utc).isoformat(), drive_id=session['drive_id'],
