@@ -46,8 +46,22 @@ function say(text, audioUrl, lang) {
   player.play().catch(() => sayBrowser(text, lang));
 }
 
+const panel = document.querySelector("#panel");
+const coachStatus = document.querySelector("#coach-status");
+const VOICE_RATE = 24000;
+let coachSocket = null;
+let micStream = null;
+let micContext = null;
+let micProcessor = null;
+let playContext = null;
+let playTime = 0;
+
 function setMode(name) {
-  mode.textContent = name.toUpperCase();
+  const modeName = name === "driving" || name === "parked" ? name : "idle";
+  mode.textContent = modeName.toUpperCase();
+  document.body.classList.remove("idle", "driving", "parked");
+  document.body.classList.add(modeName);
+  if (modeName !== "parked") panel.hidden = true;
 }
 
 function escapeHTML(value) {
@@ -131,32 +145,48 @@ async function start(source) {
   spanishText = "";
   clearCues();
   log.replaceChildren();
-  log.hidden = false;
+  log.hidden = true;
   practice.hidden = true;
-  panelTitle.textContent = "Sign log";
+  stopCoach();
   park.disabled = false;
   setMode("driving");
-  hint.textContent = "Driving. Recognized safety signs receive short descriptive announcements.";
+  hint.textContent = "On the road. I'll speak when a sign matters.";
 }
 
 document.querySelector("#start-file").addEventListener("click", () => start("file"));
 
 park.addEventListener("click", async () => {
+  unlockVoice();
   clearCues();
+  stopCoach();
+  panel.hidden = false;
+  panelTitle.textContent = "Parked practice";
+  coachStatus.textContent = "Parking…";
+  log.hidden = true;
+  practice.hidden = true;
+  hint.textContent = "";
+  let stream = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch {
+    stream = null;
+  }
   const response = await fetch("/api/park", { method: "POST" });
   const body = await response.json();
   setMode("parked");
-  hint.textContent = "Parked. Answer in English.";
-  panelTitle.textContent = "Parked practice";
-  log.hidden = true;
-  if (!body.next || body.next.type === "practice_done") {
-    practice.hidden = false;
-    question.textContent = "No catalog signs on this drive yet.";
-    progress.textContent = "";
-    spanishText = "";
+  panel.hidden = false;
+  if (!body.voice) {
+    if (stream) stream.getTracks().forEach((track) => track.stop());
+    coachStatus.textContent = body.voice_error || "Voice practice is unavailable right now.";
     return;
   }
-  showQuestion(body.next);
+  if (!stream) coachStatus.textContent = "The mic is off, so the coach can talk but cannot hear you.";
+  beginCoach(body.voice, stream);
+});
+
+document.querySelector("#coach-end").addEventListener("click", () => {
+  stopCoach();
+  coachStatus.textContent = "Practice ended.";
 });
 
 document.querySelector("#practice").addEventListener("submit", async (event) => {
@@ -259,6 +289,151 @@ let cueBusy = false;
 let cueGeneration = 0;
 function clearCues() { cueGeneration++; cueQueue.length = 0; cueBusy = false; player.pause(); player.onended = null; player.onerror = null; speechSynthesis.cancel(); }
 function enqueueCue(cue) { if (!voiceOn) return; cueQueue.push({...cue, received: Date.now()}); drainCues(); }
+function stopCoach() {
+  if (coachSocket) {
+    coachSocket.onclose = null;
+    coachSocket.close();
+    coachSocket = null;
+  }
+  if (micProcessor) {
+    micProcessor.disconnect();
+    micProcessor.onaudioprocess = null;
+    micProcessor = null;
+  }
+  if (micStream) {
+    micStream.getTracks().forEach((track) => track.stop());
+    micStream = null;
+  }
+  if (micContext) {
+    micContext.close().catch(() => {});
+    micContext = null;
+  }
+  playTime = 0;
+}
+
+function pcm16Base64(samples) {
+  const pcm = new Int16Array(samples.length);
+  for (let i = 0; i < samples.length; i++) {
+    const sample = Math.max(-1, Math.min(1, samples[i]));
+    pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+  }
+  const bytes = new Uint8Array(pcm.buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+function base64ToFloat32(encoded) {
+  const binary = atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const pcm = new Int16Array(bytes.buffer);
+  const samples = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) samples[i] = pcm[i] / 0x8000;
+  return samples;
+}
+
+function resample(input, fromRate, toRate) {
+  if (fromRate === toRate) return input;
+  const ratio = fromRate / toRate;
+  const length = Math.floor(input.length / ratio);
+  const output = new Float32Array(length);
+  for (let i = 0; i < length; i++) {
+    const position = i * ratio;
+    const left = Math.floor(position);
+    const right = Math.min(left + 1, input.length - 1);
+    const mix = position - left;
+    output[i] = input[left] * (1 - mix) + input[right] * mix;
+  }
+  return output;
+}
+
+function playCoachPcm(encoded) {
+  if (!playContext) playContext = new AudioContext({ sampleRate: VOICE_RATE });
+  const samples = base64ToFloat32(encoded);
+  if (!samples.length) return;
+  const buffer = playContext.createBuffer(1, samples.length, VOICE_RATE);
+  buffer.getChannelData(0).set(samples);
+  const source = playContext.createBufferSource();
+  source.buffer = buffer;
+  source.connect(playContext.destination);
+  const now = playContext.currentTime;
+  if (playTime < now) playTime = now + 0.05;
+  source.start(playTime);
+  playTime += buffer.duration;
+}
+
+function startMic(stream, socket) {
+  micStream = stream;
+  micContext = new AudioContext();
+  const source = micContext.createMediaStreamSource(stream);
+  const mute = micContext.createGain();
+  mute.gain.value = 0;
+  micProcessor = micContext.createScriptProcessor(4096, 1, 1);
+  micProcessor.onaudioprocess = (event) => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    const input = event.inputBuffer.getChannelData(0);
+    const audio = resample(input, micContext.sampleRate, VOICE_RATE);
+    socket.send(JSON.stringify({ type: "input_audio_buffer.append", audio: pcm16Base64(audio) }));
+  };
+  source.connect(micProcessor);
+  micProcessor.connect(mute);
+  mute.connect(micContext.destination);
+}
+
+function beginCoach(voice, stream) {
+  playContext = playContext || new AudioContext({ sampleRate: VOICE_RATE });
+  playContext.resume();
+  playTime = 0;
+  const socket = new WebSocket(
+    "wss://api.x.ai/v1/realtime?model=grok-voice-latest",
+    [`xai-client-secret.${voice.token}`]
+  );
+  coachSocket = socket;
+  coachStatus.textContent = "Connecting to the coach…";
+  socket.onopen = () => {
+    socket.send(JSON.stringify({
+      type: "session.update",
+      session: {
+        voice: "eve",
+        instructions: voice.instructions,
+        turn_detection: { type: "server_vad" },
+        audio: {
+          input: { format: { type: "audio/pcm", rate: VOICE_RATE } },
+          output: { format: { type: "audio/pcm", rate: VOICE_RATE } },
+        },
+      },
+    }));
+    socket.send(JSON.stringify({
+      type: "conversation.item.create",
+      item: {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text: "I just parked. Start the practice." }],
+      },
+    }));
+    socket.send(JSON.stringify({ type: "response.create" }));
+    if (stream) startMic(stream, socket);
+    coachStatus.textContent = "The coach is speaking. Then just answer out loud.";
+  };
+  socket.onmessage = (event) => {
+    let message;
+    try { message = JSON.parse(event.data); } catch { return; }
+    if (message.type === "response.created") coachStatus.textContent = "Coach is speaking.";
+    if ((message.type === "response.output_audio.delta" || message.type === "response.audio.delta") && message.delta) {
+      playCoachPcm(message.delta);
+    }
+    if (message.type === "response.done") coachStatus.textContent = "Listening. Answer out loud.";
+    if (message.type === "error") coachStatus.textContent = (message.error && message.error.message) || "The coach lost the connection.";
+  };
+  socket.onerror = () => { coachStatus.textContent = "The coach could not connect."; };
+  socket.onclose = () => {
+    if (coachSocket === socket) coachStatus.textContent = "Practice ended.";
+  };
+}
+
 function drainCues() {
   if (cueBusy) return;
   let cue;

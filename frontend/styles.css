@@ -14,21 +14,18 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  overflow: hidden;
+  background: #050605;
   color: var(--ink);
   font: 18px/1.4 "Avenir Next", "Segoe UI", sans-serif;
 }
 
-header, main {
-  width: min(1480px, calc(100% - 28px));
-  margin: 0 auto;
-}
-
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  padding: 14px 0 8px;
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  z-index: 2;
+  margin: 0;
 }
 
 .eyebrow {
@@ -51,34 +48,44 @@ h2 { font-size: 22px; }
   font-size: 14px;
 }
 
-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 16px;
-  padding-bottom: 24px;
-  align-items: start;
+main { margin: 0; }
+
+.stage {
+  position: fixed;
+  inset: 0;
+  background: #050605;
 }
 
-.stage, aside {
+aside {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 3;
+  width: min(420px, calc(100% - 48px));
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 16px;
 }
 
-aside {
-  max-height: min(74vh, 860px);
-  overflow: auto;
-}
-
 #video {
   display: block;
   width: 100%;
-  height: min(74vh, 860px);
-  min-height: 480px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   background: #050605;
-  border-radius: 12px;
+}
+
+#video:not([src]) { opacity: 0; }
+
+body.parked #video { filter: brightness(0.4); }
+
+.hud {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 2;
+  max-width: min(520px, calc(100% - 48px));
 }
 
 .controls {
@@ -147,8 +154,8 @@ button:disabled { opacity: 0.45; cursor: default; }
 #result.partial { color: #efd38a; }
 
 @media (max-width: 800px) {
-  main { grid-template-columns: 1fr; }
-  h1 { font-size: 28px; }
+  .hud { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+  aside { left: 16px; right: 16px; width: auto; bottom: 164px; }
 }
 
 [hidden] { display: none !important; }

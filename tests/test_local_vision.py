@@ -96,6 +96,18 @@ class LocalTests(unittest.TestCase):
   d=self.detector();job=self.job('a');d.publish_pending(job);state.drive_id='new-drive';state.detections=[]
   with patch('backend.local_vision.log_detection') as log:d.finish(job,dict(sign_id='stop',sign_text='STOP',confidence=.9));log.assert_not_called()
   self.assertEqual(state.detections,[])
+ def test_coach_uses_the_signs_from_this_drive(self):
+  from backend.voice_coach import coach_instructions
+  text=coach_instructions([
+    {'recognition_status':'resolved','sign_text':'SPEED LIMIT 40','sign_id':'speed_limit'},
+    {'recognition_status':'pending','sign_text':'Reading sign…'},
+    {'recognition_status':'resolved','sign_text':'ROAD WORK AHEAD EXPECT DELAYS','sign_id':'road_work'},
+    {'recognition_status':'resolved','sign_text':'SPEED LIMIT 40','sign_id':'speed_limit'},
+  ])
+  self.assertIn('SPEED LIMIT 40', text)
+  self.assertIn('ROAD WORK AHEAD EXPECT DELAYS', text)
+  self.assertEqual(text.count('SPEED LIMIT 40'), 1)
+  self.assertIn('dock', text.lower())
  def test_speed_limit_is_spoken(self):
   d=self.detector();job=self.job('a');d.publish_pending(job)
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):

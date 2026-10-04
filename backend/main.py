@@ -20,6 +20,7 @@ from backend.practice import build_session, current_question, submit
 from backend.state import state
 from backend.tts import speak
 from backend.video import VideoSource
+from backend.voice_coach import mint_voice_session
 
 FRONTEND = ROOT / "frontend"
 THUMBS = ROOT / "data" / "thumbs"
@@ -142,19 +143,27 @@ def park():
         detector.stop()
     with state.lock:
         items = build_session(state.detections)
+        detections = list(state.detections)
         state.practice_items = items
         state.practice_index = 0
         state.mode = "parked"
         drive_id = state.drive_id
     event = {"type": "state", "mode": "parked", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
+    voice = None
+    voice_error = ""
+    try:
+        voice = mint_voice_session(detections)
+    except Exception as exc:
+        voice_error = "Voice practice is unavailable right now."
+        print(f"voice session failed: {type(exc).__name__}: {exc}")
     question = current_question()
     if question is None:
         done = {"type": "practice_done", "summary": {"asked": 0}}
         bus.publish(done)
-        return {"state": event, "next": done}
+        return {"state": event, "next": done, "voice": voice, "voice_error": voice_error}
     bus.publish(question)
-    return {"state": event, "next": question}
+    return {"state": event, "next": question, "voice": voice, "voice_error": voice_error}
 
 
 @app.post("/api/practice/answer")
