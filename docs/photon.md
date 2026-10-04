@@ -4,7 +4,7 @@ This addition leaves local sign recognition, saved reviews, cached ElevenLabs cu
 and the browser Park quiz intact. After parking, **Practice in iMessage** starts a
 separate quiz using up to five unique resolved captures. Ignored/non-sign reviews
 and pending detections are excluded. The sign's actual captured picture is sent
-with its catalog question; each reply is graded locally, recorded with
+with its catalog question (the question text is delivered first, followed by its picture); each reply is graded locally, recorded with
 `channel: photon`, and followed by feedback and the next capture. No language
 model or cloud vision call is used by this quiz.
 
@@ -76,7 +76,7 @@ npm --prefix photon-bridge run check
 npm --prefix photon-bridge test
 ```
 
-Twelve backend lifecycle tests use mocked transport: corrected captures,
+Fifteen backend lifecycle tests use mocked transport: corrected captures,
 exclusions, grading, multiple questions, completion, STOP, duplicate delivery,
 recipient/auth restrictions, retries, stale drive/index, and path confinement.
 The Node test starts the real installed Spectrum SDK with intentionally absent
@@ -101,3 +101,26 @@ The bridge imports `Spectrum`, `attachment`, and
 `imessage(app).space.create(await imessage(app).user(recipient))` for the DM, and
 subscribes to `app.messages` for inbound replies. It uses Photon's managed
 provider rather than accessing the Mac's personal Messages database.
+
+## Live validation, October 4, 2026
+
+Project credentials successfully minted a shared-mode provider token. The approved
+recipient was enrolled in the project dashboard, but the provider rejected both
+the live quiz send and read-only availability checks with gRPC
+`PERMISSION_DENIED` (7): `Target not allowed for this project`. E.164, digits-only,
+and national formats of the same phone number all returned the same denial.
+The user subsequently confirmed receiving text questions and feedback after
+sending an initial greeting. Proactive sends remained denied in later tests;
+shared-line routing now reuses the actual inbound conversation. Captured-photo
+paths and greeting handling have regression coverage, but photo delivery still
+requires live confirmation. The status API exposes `recipient_not_allowed` after a failed
+send and instructions to verify the exact approved number in the project's Users
+list. No alternative recipient is contacted.
+
+The bridge tracks safe delivery stages (`resolve_conversation`, `send_text`,
+`send_image`, `delivered`) and error codes without logging credentials or phone
+numbers. The Python request budget is 75 seconds to accommodate provider calls.
+The official HTTP client was tested with a read-only availability request against
+the shared provider host and returned HTTP 415; the deployed bridge retains
+Spectrum's official gRPC provider rather than switching to an unsupported
+transport.

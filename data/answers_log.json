@@ -223,5 +223,89 @@
     "answer": "no u turn",
     "grade": "correct",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T10:50:45.258801+00:00",
+    "drive_id": "2026-10-04T06-49-06",
+    "event_id": "2026-10-04T06-49-06:4:66",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "Hi",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "822ffa6940c14137b1527f4d23bcdac6",
+    "message_id": "spc-msg-e90d6315-31a8-4ff1-8d04-b7d3826297af"
+  },
+  {
+    "ts": "2026-10-04T10:51:40.554711+00:00",
+    "drive_id": "2026-10-04T06-49-06",
+    "event_id": "2026-10-04T06-49-06:100001:66",
+    "sign_id": "do_not_enter",
+    "question": "You passed this sign. Can you turn in here?",
+    "answer": "No",
+    "grade": "partial",
+    "channel": "photon",
+    "session_id": "822ffa6940c14137b1527f4d23bcdac6",
+    "message_id": "spc-msg-42b182d7-adc9-43dd-81f0-8fd969864cbc"
+  },
+  {
+    "ts": "2026-10-04T10:55:03.187176+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:4:66",
+    "sign_id": "no_u_turn",
+    "question": "What maneuver is prohibited by this sign?",
+    "answer": "I can enter therr",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-8781fe02-21f5-4c59-aba4-1b5d25f28949"
+  },
+  {
+    "ts": "2026-10-04T10:55:19.321032+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:100001:66",
+    "sign_id": "do_not_enter",
+    "question": "You passed this sign. Can you turn in here?",
+    "answer": "Moving",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-e1e2e664-58d3-419f-911b-02ce6dc55be1"
+  },
+  {
+    "ts": "2026-10-04T10:55:37.332245+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:112:9100",
+    "sign_id": "lane_ends",
+    "question": "You passed this sign. What should you do?",
+    "answer": "Idk",
+    "grade": "incorrect",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-772e08de-ad4a-4c29-bfef-e94802baa7a8"
+  },
+  {
+    "ts": "2026-10-04T10:55:47.634897+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:100022:12500",
+    "sign_id": "merge",
+    "question": "What happens to traffic ahead?",
+    "answer": "Merge",
+    "grade": "correct",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-70b8ef7c-905c-4191-83f3-9f9e8017500f"
+  },
+  {
+    "ts": "2026-10-04T10:55:57.109072+00:00",
+    "drive_id": "2026-10-04T06-54-09",
+    "event_id": "2026-10-04T06-54-09:3:66",
+    "sign_id": "freeway_entrance",
+    "question": "Where does this entrance lead?",
+    "answer": "Freeway",
+    "grade": "correct",
+    "channel": "photon",
+    "session_id": "52af5520342a459e9f355c8aff0d2e5a",
+    "message_id": "spc-msg-ecdb8b06-f4db-43bf-a2ce-b3b9e2d2840e"
   }
 ]
