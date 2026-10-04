@@ -72,6 +72,7 @@ function say(text, audioUrl, lang) {
 
 function setMode(name) {
   currentMode = name;
+  if (name !== "parked") stopCoach();
   document.body.classList.remove("idle", "driving", "paused", "parked");
   document.body.classList.add(name);
   if (name !== "parked") document.querySelector("#practice-panel").hidden = true;
@@ -230,6 +231,7 @@ function updateAudio(message) {
 }
 
 async function start(source) {
+  coachGeneration++; stopCoach(); parkVoicePending = false;
   result.textContent = "";
   lastQuestionKey = "";
   unlockVoice();
@@ -303,28 +305,32 @@ pauseDrive.addEventListener("click", async () => {
 
 park.addEventListener("click", async () => {
   result.textContent = "";
-  unlockVoice();
-  lastQuestionKey = "";
-  clearCues();
-  const response = await fetch("/api/park", { method: "POST" });
-  const body = await response.json();
-  if (!response.ok) { hint.textContent = body.detail || "Could not park."; return; }
-  setMode("parked");
-  hint.textContent = "Parked. Answer in English.";
-  panelTitle.textContent = "Sign log";
-  document.querySelector("#practice-panel").hidden = false;
-  log.hidden = false;
-  if (!body.next || body.next.type === "practice_done") {
-    practice.hidden = false;
-    question.textContent = "No catalog signs on this drive yet.";
-    progress.textContent = "";
-    spanishText = "";
-    answer.disabled = true;
-    qThumb.hidden = true;
-    return;
+  unlockVoice(); lastQuestionKey = ""; clearCues();
+  const generation = ++coachGeneration;
+  stopCoach(); parkVoicePending = true;
+  try {
+    const response = await fetch("/api/park", {method: "POST"});
+    const body = await response.json();
+    if (generation !== coachGeneration) return;
+    if (!response.ok) throw new Error(body.detail || "Could not park.");
+    setMode("parked");
+    document.querySelector("#practice-panel").hidden = false;
+    typedPracticeNext = body.next;
+    if (await beginVoicePractice(generation)) return;
+    if (generation !== coachGeneration) return;
+    parkVoicePending = false;
+    showTypedPractice();
+  } catch (error) {
+    parkVoicePending = false; hint.textContent = error.message;
   }
-  showQuestion(body.next);
 });
+
+function showTypedPractice() {
+  hint.textContent = "Parked. Answer in English.";
+  practice.hidden = false;
+  if (typedPracticeNext && typedPracticeNext.type !== "practice_done") showQuestion(typedPracticeNext);
+  else {question.textContent = "No catalog signs on this drive yet."; progress.textContent = ""; answer.disabled = true;}
+}
 
 document.querySelector("#practice").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -352,6 +358,8 @@ document.querySelector("#practice").addEventListener("submit", async (event) => 
 });
 
 function showQuestion(item) {
+  typedPracticeNext = item;
+  if (parkVoicePending || coachSocket) return;
   const key = JSON.stringify([activeDriveId, item.event_id, item.index, item.total, item.question]);
   const duplicate = key === lastQuestionKey;
   lastQuestionKey = key;
@@ -788,7 +796,217 @@ function setLogOpen(open) {
 }
 document.querySelector('#log-toggle').addEventListener('click', () => setLogOpen(document.querySelector('#panel').hidden));
 document.querySelector('#log-close').addEventListener('click', () => {setLogOpen(false); document.querySelector('#log-toggle').focus();});
-document.querySelector('#practice-close').addEventListener('click', () => {document.querySelector('#practice-panel').hidden = true; clearCues();});
+document.querySelector('#practice-close').addEventListener('click', () => {coachGeneration++; stopCoach(); parkVoicePending = false; document.querySelector('#practice-panel').hidden = true; clearCues();});
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') {setLogOpen(false); document.querySelector('#practice-panel').hidden = true;}
+  if (event.key === 'Escape') {coachGeneration++; stopCoach(); parkVoicePending = false; setLogOpen(false); document.querySelector('#practice-panel').hidden = true;}
 });
+
+const coachStatus = document.querySelector("#coach-status");
+const VOICE_RATE = 24000;
+let coachSocket = null, micStream = null, micContext = null, micProcessor = null;
+let playContext = null, playTime = 0, coachSources = [], coachStopped = true, coachGeneration = 0;
+let parkVoicePending = false, typedPracticeNext = null;
+
+async function beginVoicePractice(generation) {
+  coachStatus.textContent = "Connecting to the voice coach…";
+  try {
+    const data = await apiJSON("/api/practice/voice", {});
+    if (generation !== coachGeneration || currentMode !== "parked") return false;
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    if (generation !== coachGeneration || currentMode !== "parked") {stream.getTracks().forEach(track=>track.stop()); return false;}
+    clearCues(); parkVoicePending = false; practice.hidden = true;
+    document.querySelector("#coach-end").hidden = false; document.querySelector("#coach-start").hidden = true;
+    hint.textContent = "Parked. Answer the coach out loud.";
+    beginCoach(data.voice, stream);
+    return true;
+  } catch (error) {
+    if (generation === coachGeneration) coachStatus.textContent = error.message || "Voice unavailable. You can type your answers.";
+    return false;
+  }
+}
+document.querySelector("#coach-start").addEventListener("click", async () => {
+  const generation = ++coachGeneration; stopCoach(); clearCues(); parkVoicePending = true;
+  if (!await beginVoicePractice(generation) && generation === coachGeneration) {parkVoicePending = false; showTypedPractice();}
+});
+document.querySelector("#coach-end").addEventListener("click", () => {
+  coachGeneration++; stopCoach(); parkVoicePending = false; coachStatus.textContent = "Voice stopped. Type your answers below."; showTypedPractice();
+});
+window.addEventListener("pagehide", () => {coachGeneration++; stopCoach();});
+function stopCoach() {
+  coachStopped = true;
+  document.querySelector("#coach-end").hidden = true;
+  document.querySelector("#coach-start").hidden = false;
+  for (const source of coachSources) {
+    try { source.stop(); } catch { /* already finished */ }
+  }
+  coachSources = [];
+  playTime = 0;
+  if (playContext) {
+    playContext.close().catch(() => {});
+    playContext = null;
+  }
+  if (coachSocket) {
+    coachSocket.onmessage = null;
+    coachSocket.onopen = null;
+    coachSocket.onclose = null;
+    coachSocket.close();
+    coachSocket = null;
+  }
+  if (micProcessor) {
+    micProcessor.disconnect();
+    micProcessor.onaudioprocess = null;
+    micProcessor = null;
+  }
+  if (micStream) {
+    micStream.getTracks().forEach((track) => track.stop());
+    micStream = null;
+  }
+  if (micContext) {
+    micContext.close().catch(() => {});
+    micContext = null;
+  }
+}
+
+function pcm16Base64(samples) {
+  const pcm = new Int16Array(samples.length);
+  for (let i = 0; i < samples.length; i++) {
+    const sample = Math.max(-1, Math.min(1, samples[i]));
+    pcm[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+  }
+  const bytes = new Uint8Array(pcm.buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+function base64ToFloat32(encoded) {
+  const binary = atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const pcm = new Int16Array(bytes.buffer);
+  const samples = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) samples[i] = pcm[i] / 0x8000;
+  return samples;
+}
+
+function resample(input, fromRate, toRate) {
+  if (fromRate === toRate) return input;
+  const ratio = fromRate / toRate;
+  const length = Math.floor(input.length / ratio);
+  const output = new Float32Array(length);
+  for (let i = 0; i < length; i++) {
+    const position = i * ratio;
+    const left = Math.floor(position);
+    const right = Math.min(left + 1, input.length - 1);
+    const mix = position - left;
+    output[i] = input[left] * (1 - mix) + input[right] * mix;
+  }
+  return output;
+}
+
+function playCoachPcm(encoded) {
+  if (coachStopped || !playContext) return;
+  const samples = base64ToFloat32(encoded);
+  if (!samples.length) return;
+  const buffer = playContext.createBuffer(1, samples.length, VOICE_RATE);
+  buffer.getChannelData(0).set(samples);
+  const source = playContext.createBufferSource();
+  source.buffer = buffer;
+  source.connect(playContext.destination);
+  source.onended = () => {
+    coachSources = coachSources.filter((item) => item !== source);
+  };
+  coachSources.push(source);
+  const now = playContext.currentTime;
+  if (playTime < now) playTime = now + 0.05;
+  source.start(playTime);
+  playTime += buffer.duration;
+}
+
+function startMic(stream, socket) {
+  micStream = stream;
+  micContext = new AudioContext();
+  const source = micContext.createMediaStreamSource(stream);
+  const mute = micContext.createGain();
+  mute.gain.value = 0;
+  micProcessor = micContext.createScriptProcessor(4096, 1, 1);
+  micProcessor.onaudioprocess = (event) => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    const input = event.inputBuffer.getChannelData(0);
+    const audio = resample(input, micContext.sampleRate, VOICE_RATE);
+    socket.send(JSON.stringify({ type: "input_audio_buffer.append", audio: pcm16Base64(audio) }));
+  };
+  source.connect(micProcessor);
+  micProcessor.connect(mute);
+  mute.connect(micContext.destination);
+}
+
+function beginCoach(voice, stream) {
+  coachStopped = false;
+  playContext = new AudioContext({ sampleRate: VOICE_RATE });
+  playContext.resume();
+  playTime = 0;
+  const socket = new WebSocket(
+    "wss://api.x.ai/v1/realtime?model=grok-voice-latest",
+    [`xai-client-secret.${voice.token}`]
+  );
+  coachSocket = socket;
+  coachStatus.textContent = "Connecting to the coach…";
+  socket.onopen = () => {
+    if (coachStopped || coachSocket !== socket) return;
+    socket.send(JSON.stringify({
+      type: "session.update",
+      session: {
+        voice: "eve",
+        instructions: voice.instructions,
+        turn_detection: { type: "server_vad" },
+        audio: {
+          input: { format: { type: "audio/pcm", rate: VOICE_RATE } },
+          output: { format: { type: "audio/pcm", rate: VOICE_RATE } },
+        },
+      },
+    }));
+    socket.send(JSON.stringify({
+      type: "conversation.item.create",
+      item: {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text: "I just parked. Start the practice." }],
+      },
+    }));
+    socket.send(JSON.stringify({ type: "response.create" }));
+    if (stream) startMic(stream, socket);
+    coachStatus.textContent = "The coach is speaking. Then just answer out loud.";
+  };
+  socket.onmessage = (event) => {
+    if (coachStopped || coachSocket !== socket) return;
+    let message;
+    try { message = JSON.parse(event.data); } catch { return; }
+    if (message.type === "input_audio_buffer.speech_started") {
+      for (const source of coachSources) {try {source.stop();} catch {}}
+      coachSources = []; playTime = 0;
+      coachStatus.textContent = "Listening to your answer…";
+    }
+    if (message.type === "response.created") coachStatus.textContent = "Coach is speaking.";
+    if ((message.type === "response.output_audio.delta" || message.type === "response.audio.delta") && message.delta) {
+      playCoachPcm(message.delta);
+    }
+    if (message.type === "response.done") coachStatus.textContent = "Listening. Answer out loud.";
+    if (message.type === "error") hint.textContent = (message.error && message.error.message) || "The coach lost the connection.";
+  };
+  socket.onerror = () => {
+    if (coachSocket !== socket) return;
+    stopCoach(); parkVoicePending = false;
+    coachStatus.textContent = "The voice coach could not connect. Type your answers below.";
+    showTypedPractice();
+  };
+  socket.onclose = () => {
+    if (coachSocket === socket) {
+      stopCoach(); parkVoicePending = false;
+      coachStatus.textContent = "Voice connection ended. You can continue by typing.";
+      showTypedPractice();
+    }
+  };
+}

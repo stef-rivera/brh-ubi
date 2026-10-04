@@ -23,6 +23,7 @@ from backend.feedback import router as feedback_router
 from backend.practice import build_session, current_question, submit
 from backend.state import state
 from backend.tts import speak
+from backend.voice_coach import mint_voice_session
 from backend.video import VideoSource
 
 FRONTEND = ROOT / "frontend"
@@ -182,6 +183,18 @@ def park():
         return {"state": event, "next": done}
     bus.publish(question)
     return {"state": event, "next": question}
+
+
+@app.post("/api/practice/voice")
+def practice_voice():
+    with state.lock:
+        if state.mode != "parked":
+            raise HTTPException(400, "Park before starting voice practice.")
+        detections = [dict(row) for row in state.detections]
+    try:
+        return {"voice": mint_voice_session(detections)}
+    except Exception:
+        raise HTTPException(503, "Voice coach unavailable. Configure XAI_API_KEY or use typing.")
 
 
 @app.post("/api/practice/answer")

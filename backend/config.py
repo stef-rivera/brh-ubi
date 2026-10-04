@@ -53,6 +53,7 @@ class Settings:
     photon_project_id: str | None
     photon_project_secret: str | None
     photon_test_recipient: str | None
+    xai_api_key: str | None = None
 
 
 def load_settings() -> Settings:
@@ -76,6 +77,7 @@ def load_settings() -> Settings:
         photon_project_id=_get("PHOTON_PROJECT_ID"),
         photon_project_secret=_get("PHOTON_PROJECT_SECRET"),
         photon_test_recipient=_get("PHOTON_TEST_RECIPIENT"),
+        xai_api_key=_get("XAI_API_KEY"),
     )
 
 

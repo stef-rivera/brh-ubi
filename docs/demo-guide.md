@@ -31,3 +31,7 @@ Export the reviewed examples for annotation with:
 ```
 
 The exported manifest is not yet ready for detector training: selected frames need complete sign annotations and a separate validation split. No automatic training or cloud image upload runs.
+
+### Spoken practice after parking
+
+Park attempts Stef's xAI realtime voice coach using the corrected sign labels and meanings from this drive. Ignored, rejected, and unresolved captures are excluded. Configure `XAI_API_KEY` in the local `.env` to enable this optional cloud voice conversation; image recognition remains local. Allow the microphone when prompted, then answer aloud. `Use typing` returns to the existing quiz. Closing practice, restarting the drive, or leaving the page stops the microphone and voice playback. Without a key, microphone permission, or a working voice connection, the typed quiz remains available. Driving announcements continue using cached ElevenLabs audio.
