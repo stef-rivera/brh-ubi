@@ -11,6 +11,7 @@ import cv2
 class VideoSource:
     def __init__(self, source: str | int):
         self.source = source
+        self.ended = False
         self._lock = threading.Lock()
         self._frame = None
         self._ts = 0.0
@@ -25,6 +26,7 @@ class VideoSource:
         if not cap.isOpened():
             cap.release()
             raise RuntimeError(f"Could not open video source {self.source!r}")
+        self.ended = False
         self._cap = cap
         self._running = True
         self._thread = threading.Thread(target=self._loop, name="video", daemon=True)
@@ -65,8 +67,8 @@ class VideoSource:
             ok, frame = cap.read()
             if not ok:
                 if is_file:
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                    continue
+                    self.ended = True
+                    break
                 time.sleep(0.05)
                 continue
             if is_file:

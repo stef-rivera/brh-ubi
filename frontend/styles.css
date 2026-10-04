@@ -142,3 +142,10 @@ button:disabled { opacity: 0.45; cursor: default; }
   main { grid-template-columns: 1fr; }
   h1 { font-size: 28px; }
 }
+
+[hidden] { display: none !important; }
+.connection { margin-top: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.connection label { display: block; margin: 12px 0 6px; font-size: 14px; }
+.connection select { background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; max-width: 100%; font: inherit; }
+#chatgpt-test { margin-top: 10px; }
+a { color: var(--muted); }

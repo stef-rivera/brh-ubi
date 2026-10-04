@@ -1,0 +1,4 @@
+-r requirements.txt
+ultralytics>=8.4,<9
+pyobjc-framework-Vision; sys_platform == "darwin"
+lap>=0.5.12

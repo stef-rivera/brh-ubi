@@ -50,7 +50,11 @@ def _thumb(frame, box, drive_id: str, index: int) -> str:
 
 
 class GeminiDetector:
-    def __init__(self, video: VideoSource):
+    def __init__(self, video: VideoSource, reader=None, provider="gemini"):
+        self.reader = reader or read_frame
+        self.provider = provider
+        self.drive_id = state.drive_id
+        self._stop = threading.Event()
         self.video = video
         self._running = False
         self._thread: threading.Thread | None = None
@@ -60,38 +64,67 @@ class GeminiDetector:
     def start(self) -> None:
         if self._running:
             return
+        if self._thread is not None and self._thread.is_alive():
+            return
+        self._stop.clear()
         self._running = True
         self._thread = threading.Thread(target=self._loop, name="detector", daemon=True)
         self._thread.start()
 
     def stop(self) -> None:
         self._running = False
+        self._stop.set()
         thread = self._thread
         if thread is not None:
             thread.join(timeout=2)
-        self._thread = None
+        if thread is None or not thread.is_alive():
+            self._thread = None
+
+    def _status(self, status, message=""):
+        with state.lock:
+            if state.drive_id != self.drive_id:
+                return
+            state.detection_status = status
+            state.detection_error = message
+        bus.publish({"type": "detector_status", "status": status, "message": message})
 
     def _loop(self) -> None:
-        while self._running:
-            started = time.perf_counter()
-            item = self.video.latest()
-            if item is not None:
-                frame, ts = item
-                if not _similar(self._last_small, frame):
-                    self._last_small = frame
-                    self._handle(frame, ts)
-            wait = settings.detect_interval_s - (time.perf_counter() - started)
-            if wait > 0 and self._running:
-                time.sleep(wait)
+        try:
+            while not self._stop.is_set():
+                if self.video.ended:
+                    self._status("completed", "Video complete. Park to practice; Start drive runs another pass.")
+                    break
+                started = time.perf_counter()
+                item = self.video.latest()
+                if item is None:
+                    self._stop.wait(0.05)
+                    continue
+                if item is not None:
+                    frame, ts = item
+                    if not _similar(self._last_small, frame):
+                        self._last_small = frame
+                        self._handle(frame, ts)
+                interval = max(5.0, settings.detect_interval_s) if self.provider == "chatgpt" else settings.detect_interval_s
+                self._stop.wait(max(0, interval - (time.perf_counter() - started)))
+        except Exception as exc:
+            from backend.chatgpt_client import ChatGPTError
+            message = str(exc) if isinstance(exc, ChatGPTError) else "Detection failed. Park and check the server configuration before retrying."
+            if not self._stop.is_set():
+                self._status("error", message)
+        finally:
+            self._running = False
 
     def _handle(self, frame, ts_video: float) -> None:
         now = time.time()
-        for found in read_frame(frame):
+        for found in self.reader(frame):
+            if self._stop.is_set() or state.drive_id != self.drive_id:
+                return
             sign_id = found["sign_id"]
-            last = self._seen.get(sign_id)
+            seen_key = sign_id if sign_id != "unknown" else "unknown:" + found["sign_text"].casefold()
+            last = self._seen.get(seen_key)
             if last is not None and now - last < settings.dedup_window_s:
                 continue
-            self._seen[sign_id] = now
+            self._seen[seen_key] = now
             entry = get(sign_id)
             with state.lock:
                 index = len(state.detections) + 1
@@ -108,7 +141,7 @@ class GeminiDetector:
                 "speak_now": critical,
                 "box": found["box"],
                 "confidence": found["confidence"],
-                "source": "gemini",
+                "source": self.provider,
                 "thumb_url": thumb_url,
                 "meaning": (entry or {}).get("meaning", ""),
                 "meaning_es": (entry or {}).get("meaning_es", ""),

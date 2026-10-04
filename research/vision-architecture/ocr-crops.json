@@ -1,0 +1,179 @@
+[
+  {
+    "file": "crop-1-0.jpg",
+    "ms": 97.55575002054684,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-1-1.jpg",
+    "ms": 15.57754201348871,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-10-0.jpg",
+    "ms": 12.719708000076935,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-16-0.jpg",
+    "ms": 12.073624995537102,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-16-1.jpg",
+    "ms": 12.992125004529953,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-17-0.jpg",
+    "ms": 46.73020899645053,
+    "success": true,
+    "error": "None",
+    "texts": [
+      {
+        "text": "SNCCO",
+        "confidence": 0.30000001192092896
+      },
+      {
+        "text": "LIUT",
+        "confidence": 0.5
+      },
+      {
+        "text": "40",
+        "confidence": 1.0
+      }
+    ]
+  },
+  {
+    "file": "crop-17-1.jpg",
+    "ms": 15.224500006297603,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-20-0.jpg",
+    "ms": 15.15325001673773,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-26-0.jpg",
+    "ms": 15.104541991604492,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-26-1.jpg",
+    "ms": 15.162833005888388,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-36-0.jpg",
+    "ms": 20.01608398859389,
+    "success": true,
+    "error": "None",
+    "texts": [
+      {
+        "text": "40",
+        "confidence": 1.0
+      }
+    ]
+  },
+  {
+    "file": "crop-39-0.jpg",
+    "ms": 15.659500000765547,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-39-1.jpg",
+    "ms": 21.277332998579368,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-39-2.jpg",
+    "ms": 17.15408399468288,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-40-0.jpg",
+    "ms": 17.595916986465454,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-40-1.jpg",
+    "ms": 16.83162502013147,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-53-0.jpg",
+    "ms": 22.760958003345877,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-57-0.jpg",
+    "ms": 18.77199998125434,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-57-1.jpg",
+    "ms": 19.299957988550887,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-57-2.jpg",
+    "ms": 20.585375023074448,
+    "success": true,
+    "error": "None",
+    "texts": []
+  },
+  {
+    "file": "crop-9-0.jpg",
+    "ms": 32.60666597634554,
+    "success": true,
+    "error": "None",
+    "texts": [
+      {
+        "text": "Pleasant Hill Rd",
+        "confidence": 1.0
+      }
+    ]
+  },
+  {
+    "file": "crop-9-1.jpg",
+    "ms": 18.304415978491306,
+    "success": true,
+    "error": "None",
+    "texts": []
+  }
+]

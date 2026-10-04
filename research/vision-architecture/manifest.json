@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-03",
+  "hardware": {
+    "chip": "Apple M3 Max",
+    "memory_GiB": 36,
+    "backend": "PyTorch MPS"
+  },
+  "video": {
+    "path": "data/drive.mp4",
+    "sha256": "d110d40c05ab37e205ee5c3ac9287732eb9abef714b50c234e35481015a6b6c2",
+    "dimensions": [
+      1280,
+      720
+    ],
+    "duration_seconds": 60
+  },
+  "weights": {
+    "us_signs": {
+      "url": "https://huggingface.co/cvtechniques/JC-Traffic-Sign-Detection",
+      "revision": "2cb01e6788b82d904a1d1e35646e171a1b622fe7",
+      "files": [
+        "trainv8/weights/best.pt",
+        "trainv11/weights/best.pt"
+      ]
+    },
+    "open_vocabulary": {
+      "model": "yoloe-26s-seg.pt",
+      "source": "Ultralytics official assets"
+    }
+  },
+  "methodology": [
+    "US detectors: 60 frames sampled at integer seconds, confidence .25, sizes 640 and 1280, three warmup calls.",
+    "YOLOE: 60 frames sampled at integer seconds, confidence .15, size 1280, seven prompts recorded in script; first three timings excluded.",
+    "Tracking: 600 frames at approximately 10 Hz, same clip; first five timings excluded; baseline ByteTrack and tuned configuration compared.",
+    "Timing covers predict/track call wall time, not decoding, display, audio or end-to-end event latency.",
+    "OCR recognition performed after tracking, not during the timing loop.",
+    "One unlabeled clip: counts are predictions or candidate tracks, not recall, precision or unique correctly recognized signs.",
+    "Manual crop review found confusion between stop and do-not-enter, school and bicycle/pedestrian signs, speed40 versus35/45, and commercial signs counted as traffic signs.",
+    "Native OCR full-frame test produced no text; 22 selected crops yielded usable Pleasant Hill Rd and 40, with many blanks and some incorrect text.",
+    "Tuned tracker produced18 tracks with >=3 hits, including business signs and possible fragments; this is not18 validated traffic signs."
+  ],
+  "recommendation": {
+    "architecture": "Native frames -> local broad sign proposals -> tuned tracking and best raw crops -> OCR and verified sign recognition -> catalog events -> cached audio; optional asynchronous VLM for unresolved candidates.",
+    "initial_detector": "YOLOE-26s at1280 using MPS, proposed10Hz service rate",
+    "tracker": "ByteTrack tuned baseline, with further annotated validation needed",
+    "ocr": "Apple Vision for current Mac; PP-OCRv5 candidate for portable deployment, not benchmarked here",
+    "status": "Research prototype only. Existing app not switched. No full end-to-end latency/accuracy validation completed."
+  },
+  "sources": [
+    "https://docs.ultralytics.com/models/yoloe",
+    "https://github.com/FoundationVision/ByteTrack",
+    "https://developer.apple.com/documentation/vision/recognizing-text-in-images",
+    "https://github.com/PaddlePaddle/PaddleOCR",
+    "https://github.com/roboflow/rf-detr",
+    "https://github.com/IDEA-Research/GroundingDINO",
+    "https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+    "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct",
+    "https://cvrr.ucsd.edu/lisa-traffic-signs-dataset",
+    "https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123680069.pdf",
+    "https://arxiv.org/abs/2202.06934"
+  ]
+}

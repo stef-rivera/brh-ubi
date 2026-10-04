@@ -14,6 +14,8 @@ from pydantic import BaseModel
 
 from backend.config import ROOT, settings
 from backend.detector import GeminiDetector
+from backend.chatgpt_routes import router as chatgpt_router, require_tested
+from backend import chatgpt_client
 from backend.events import bus
 from backend.practice import build_session, current_question, submit
 from backend.state import state
@@ -48,6 +50,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(chatgpt_router)
 app.mount("/thumbs", StaticFiles(directory=str(THUMBS)), name="thumbs")
 app.mount("/audio", StaticFiles(directory=str(AUDIO)), name="audio")
 app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")
@@ -55,6 +58,9 @@ app.mount("/assets", StaticFiles(directory=str(FRONTEND)), name="assets")
 
 class StartBody(BaseModel):
     source: str = "file"
+    detector: str = "local"
+    model: str = ""
+    cloud_assist: bool = False
 
 
 class AnswerBody(BaseModel):
@@ -89,11 +95,14 @@ def api_state():
 @app.post("/api/drive/start")
 def start_drive(body: StartBody):
     global video, detector
+    if body.detector not in {"gemini", "chatgpt", "local"}:
+        raise HTTPException(400, "Unknown detector.")
+    if body.detector == "chatgpt" or (body.detector == "local" and body.cloud_assist):
+        require_tested(body.model)
     _stop_pipeline()
     try:
         source = _resolve_source(body.source)
         video = VideoSource(source)
-        video.start()
     except (FileNotFoundError, RuntimeError) as exc:
         video = None
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -101,14 +110,31 @@ def start_drive(body: StartBody):
     with state.lock:
         state.mode = "driving"
         state.drive_id = drive_id
-        state.detector = "gemini"
+        state.detector = body.detector
+        state.detection_status = "running"
+        state.detection_error = ""
         state.source = body.source
+        state.pipeline_metrics = {}
         state.detections = []
         state.practice_items = []
         state.practice_index = 0
-    detector = GeminiDetector(video)
-    detector.start()
-    event = {"type": "state", "mode": "driving", "detector": "gemini", "drive_id": drive_id}
+    reader = (lambda frame: chatgpt_client.read_frame(frame, body.model)) if body.detector == "chatgpt" else None
+    try:
+        if body.detector == "local":
+            from backend.local_vision import LocalDetector
+            fallback = (lambda crop: chatgpt_client.read_frame(crop, body.model, crop_mode=True)) if body.cloud_assist else None
+            detector = LocalDetector(video, fallback=fallback)
+        else:
+            detector = GeminiDetector(video, reader=reader, provider=body.detector)
+        video.start()
+        detector.start()
+    except Exception as exc:
+        _stop_pipeline()
+        with state.lock:
+            state.mode = "idle"
+            state.detection_status = "error"
+        raise HTTPException(400, "Could not start local vision. Run the local setup script and check the server log.") from exc
+    event = {"type": "state", "mode": "driving", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
     return event
 
@@ -123,7 +149,7 @@ def park():
         state.practice_index = 0
         state.mode = "parked"
         drive_id = state.drive_id
-    event = {"type": "state", "mode": "parked", "detector": "gemini", "drive_id": drive_id}
+    event = {"type": "state", "mode": "parked", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
     question = current_question()
     if question is None:
@@ -159,7 +185,7 @@ def resume():
     with state.lock:
         state.mode = "driving"
         drive_id = state.drive_id
-    event = {"type": "state", "mode": "driving", "detector": "gemini", "drive_id": drive_id}
+    event = {"type": "state", "mode": "driving", "detector": state.detector, "drive_id": drive_id}
     bus.publish(event)
     return event
 

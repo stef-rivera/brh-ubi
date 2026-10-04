@@ -7,3 +7,5 @@ python-dotenv
 psycopg2-binary
 httpx
 websockets
+
+PyJWT[crypto]>=2.10,<3

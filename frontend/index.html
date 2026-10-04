@@ -18,8 +18,30 @@
   <main>
     <section class="stage">
       <img id="video" alt="Dashcam view" />
+      <section class="connection" aria-label="Detection settings">
+        <label for="detector">Sign reader</label>
+        <select id="detector"><option value="local">Local vision</option><option value="chatgpt">ChatGPT plan</option><option value="gemini">Gemini API</option></select>
+        <div id="local-controls">
+          <p class="hint">Finds signs on this Mac and reads text locally. Uncertain signs remain visible in the log.</p>
+          <label><input id="cloud-assist" type="checkbox" /> Use ChatGPT for uncertain sign crops (up to 8 per drive)</label>
+        </div>
+        <div id="chatgpt-controls">
+          <p class="hint">Uses your ChatGPT plan allowance. ElevenLabs still supplies the voice.</p>
+          <label for="chatgpt-account">ChatGPT account</label>
+          <select id="chatgpt-account"><option value="">Add an account</option></select>
+          <div class="controls">
+            <button id="chatgpt-login" type="button" class="secondary">Continue with ChatGPT</button>
+            <button id="chatgpt-disconnect" type="button" class="secondary" hidden>Disconnect</button>
+          </div>
+          <label for="chatgpt-model">Model</label>
+          <select id="chatgpt-model" disabled><option value="">Connect to load models</option></select>
+          <button id="chatgpt-test" type="button" class="secondary" disabled>Test one frame</button>
+          <p id="chatgpt-status" class="hint" role="status">Connect, choose a model, then test one frame before starting.</p>
+          <a class="hint" href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener noreferrer">Manage ChatGPT usage and app limits</a>
+        </div>
+      </section>
       <div class="controls">
-        <button id="start-file" type="button">Start drive</button>
+        <button id="start-file" type="button" disabled>Start drive</button>
         <button id="park" type="button" class="secondary" disabled>Park</button>
       </div>
       <p class="hint" id="hint">Press Start drive. The first click also turns the voice on.</p>
@@ -27,6 +49,7 @@
 
     <aside id="panel">
       <h2 id="panel-title">Sign log</h2>
+      <p id="pipeline-status" class="hint" role="status"></p>
       <div id="log" class="log"></div>
       <form id="practice" class="practice" hidden>
         <p id="progress"></p>

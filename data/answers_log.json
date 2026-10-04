@@ -34,5 +34,14 @@
     "answer": "stop completely",
     "grade": "partial",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T01:49:07.798730+00:00",
+    "drive_id": "2026-10-03T21-46-49",
+    "sign_id": "no_left_turn",
+    "question": "You passed this sign. Which turn is not allowed?",
+    "answer": "left",
+    "grade": "correct",
+    "channel": "ui"
   }
 ]
