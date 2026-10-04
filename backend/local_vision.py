@@ -115,7 +115,12 @@ def interpret_text(items, labels):
         if 5<=value<=85 and value%5==0:
             return dict(sign_id='speed_limit',sign_text=f'SPEED LIMIT {value}',confidence=.9,value=value)
     for words,sign_id in [('DO NOT ENTER','do_not_enter'),('ROAD WORK','road_work'),('ONE WAY','one_way'),('LANE ENDS','lane_ends'),('YIELD','yield')]:
-        if words in upper: return dict(sign_id=sign_id,sign_text=text,confidence=.85)
+        if words not in upper:
+            continue
+        # A red or yellow blob that says one way is a light or a warning sign, not a one-way sign.
+        if sign_id=='one_way' and (labels.get('red sign') or labels.get('yellow sign')):
+            continue
+        return dict(sign_id=sign_id,sign_text=text,confidence=.85)
     if upper=='STOP' or (labels.get('red sign') and upper.replace(' ','')=='STOP'): return dict(sign_id='stop',sign_text='STOP',confidence=.9)
     # An orange board is a construction sign. A standard sentence can fill words the photo blurred.
     words_found=re.findall(r'[A-Z]{3,}', upper)
@@ -198,6 +203,27 @@ FINDER_QUIET = {
     'green sign': ('guide',),
 }
 
+def reading_was_guessed(raw, found):
+    """True when the logged sentence contains a word the photo did not actually show."""
+    if not found:
+        return False
+    tokens = re.findall(r'[A-Z0-9]+', (raw or '').upper())
+    for word in str(found.get('sign_text') or '').upper().split():
+        if not any(_edit_distance(token, word) <= 1 for token in tokens):
+            return True
+    return False
+
+def choose_cloud_reading(rows, labels):
+    """Grok reads one crop. Local phrase rules still decide the sentence when they can."""
+    if not isinstance(rows, list) or len(rows) != 1:
+        return None
+    row = rows[0] or {}
+    text = str(row.get('sign_text') or '').strip()
+    if not text or is_street_name(text):
+        return None
+    found = interpret_text([{'text': text, 'confidence': max(float(row.get('confidence') or 0), .9)}], labels)
+    return found
+
 def last_kept_at(recent, name):
     times = [recent[key] for key in FINDER_QUIET.get(name, ()) if key in recent]
     return max(times) if times else None
@@ -207,7 +233,7 @@ def box_is_clearer(last_try, ts, side):
     if last_try is None:
         return True
     prev_ts, prev_side = last_try
-    return side >= prev_side * 1.3 or ts - prev_ts >= 0.8
+    return side >= prev_side + 8 or side >= prev_side * 1.3 or ts - prev_ts >= 0.8
 
 def should_read_sign(ts, confidence, min_side, last_seen, last_read):
     """Read a sign whose box has moved. One sure box is enough. A weaker box is read after it shows up again within a second. The same kind of sign stays quiet for 20 seconds after a real reading."""
@@ -231,6 +257,7 @@ class LocalDetector:
         self.model=model
         self.stop_event=threading.Event(); self.jobs=queue.Queue(8); self.cloud_jobs=queue.Queue(6); self.audio_jobs=queue.Queue(8)
         self.tracks={};self.seen={};self.recent_kept={};self.class_seen={};self.last_try={};self.threads=[];self.cloud_count=0;self.cloud_disabled=False
+        self.offer_lock=threading.Lock()
         self.stats={'frames':0,'pending':0,'resolved':0,'unresolved':0,'cloud_requests':0,'queue_full':0,'inference_ms':0,'audio_ready':0}
 
     def active(self): return not self.stop_event.is_set() and state.drive_id==self.drive_id
@@ -246,7 +273,7 @@ class LocalDetector:
     def start(self):
         if any(t.is_alive() for t in self.threads):return
         if self.stop_event.is_set():return
-        for name,target in [('local-ocr',self.local_loop),('crop-reader-1',self.cloud_loop),('crop-reader-2',self.cloud_loop),('sign-audio',self.audio_loop),('local-detection',self.loop)]:
+        for name,target in [('local-ocr',self.local_loop),('crop-reader-1',self.cloud_loop),('sign-audio',self.audio_loop),('color-scan',self.color_loop),('local-detection',self.loop)]:
             t=threading.Thread(target=target,name=name,daemon=True);self.threads.append(t);t.start()
     def stop(self):
         self.stop_event.set()
@@ -297,8 +324,12 @@ class LocalDetector:
         self.stats['resolved' if found else 'unresolved']+=1
         log_detection(row);bus.publish({'type':'detection_update',**row});self.metrics()
         # Descriptive announcements report what was observed; they do not instruct a maneuver.
-        if entry.get('safety_critical') and time.monotonic()-job['created']<20:
-            try:self.audio_jobs.put_nowait((job,ANNOUNCEMENTS[sign_id]))
+        spoken=(text or entry.get('cue_text') or ANNOUNCEMENTS.get(sign_id) or '').strip()
+        if sign_id=='speed_limit':
+            number=re.search(r'\b(\d{1,2})\b', text)
+            spoken=f'Speed limit {number.group(1)}.' if number else 'Speed limit.'
+        if (entry.get('safety_critical') or sign_id=='speed_limit') and spoken:
+            try:self.audio_jobs.put_nowait((job,spoken))
             except queue.Full:pass
 
     def local_loop(self):
@@ -312,11 +343,17 @@ class LocalDetector:
                     self.drop(job)
                 else:
                     found=interpret_text(texts,job['labels'])
-                    if found:self.finish(job,found)
-                    elif self.fallback and not self.cloud_disabled and self.cloud_count<8:
+                    guessed=reading_was_guessed(joined, found)
+                    if found and not guessed:
+                        self.finish(job,found)
+                    elif self._worth_cloud(job, joined):
+                        job['local_found']=found
                         try:
                             self.cloud_jobs.put_nowait(job);self.cloud_count+=1;self.stats['cloud_requests']=self.cloud_count
-                        except queue.Full:self.drop(job)
+                        except queue.Full:
+                            if found:self.finish(job,found)
+                            else:self.drop(job)
+                    elif found:self.finish(job,found)
                     else:self.drop(job)
             except Exception:self.drop(job)
             finally:self.jobs.task_done()
@@ -325,43 +362,64 @@ class LocalDetector:
             try:job=self.cloud_jobs.get(timeout=.2)
             except queue.Empty:continue
             try:
-                if time.monotonic()-job["created"]>25 or self.cloud_disabled:
+                if time.monotonic()-job["created"]>45 or self.cloud_disabled:
                     self.drop(job);continue
-                rows=self.fallback(job['crop'])
-                candidates=[r for r in rows if r.get('confidence',0)>=.75 and (r.get('sign_id')!='unknown' or r.get('sign_text')) and not is_street_name(r.get('sign_text') or '')]
-                # Multiple conflicting signs within one crop do not constitute a verified reading.
-                found=max(candidates,key=lambda r:r['confidence']) if len(candidates)==1 else None
-                if found:self.finish(job,found,source='local+chatgpt')
+                found=choose_cloud_reading(self.fallback(job['crop']), job['labels']) or job.get('local_found')
+                if found:self.finish(job,found,source='local+grok' if not job.get('local_found') or found is not job.get('local_found') else 'local-ocr')
                 else:self.drop(job)
             except Exception:
                 self.cloud_disabled=True;self.drop(job)
-                self.status('running','Cloud assistance unavailable. Local detection and text reading continue.')
+                self.status('running','Grok reading is unavailable. Local detection and text reading continue.')
             finally:self.cloud_jobs.task_done()
     def audio_loop(self):
         while not self.stop_event.is_set():
             try:job,text=self.audio_jobs.get(timeout=.2)
             except queue.Empty:continue
             try:
-                if self.active() and time.monotonic()-job['created']<20:
+                if self.active():
                     url=self.voice(text)
-                    if self.active() and time.monotonic()-job['created']<20:
+                    if self.active():
                         self.stats['audio_ready']+=1;self.metrics();bus.publish({'type':'cue','event_id':job['id'],'text':text,'audio_url':url,'seconds_since_detected':round(time.monotonic()-job['created'],3)})
             finally:self.audio_jobs.task_done()
+    def _worth_cloud(self, job, joined):
+        if not self.fallback or self.cloud_disabled or self.cloud_count>=12:
+            return False
+        labels=job.get('labels') or {}
+        if not (labels.get('orange sign') or labels.get('road work sign')):
+            return False
+        x1,y1,x2,y2=job['box']
+        side=min(x2-x1,y2-y1)
+        return bool(joined) or side>=48
     def _offer_read(self, frame, ts, name, box, confidence):
-        x1,y1,x2,y2=box
-        min_side=min(x2-x1,y2-y1)
-        last_read=last_kept_at(self.recent_kept, name)
-        if should_read_sign(ts, confidence, min_side, self.class_seen.get(name), last_read) and box_is_clearer(self.last_try.get(name), ts, min_side) and not self.jobs.full():
-            self.last_try[name]=(ts, min_side)
-            crop=frame[max(0,y1-16):min(frame.shape[0],y2+16),max(0,x1-16):min(frame.shape[1],x2+16)].copy()
-            labels={name:1}
-            if name in ('speed limit sign','white sign') and confidence>=.7:
-                labels['speed limit sign']=3
-            job=dict(id=f'{self.drive_id}:{name}:{int(ts*10)}',first_seen_video=ts,crop=crop,ts=ts,box=box,confidence=confidence,labels=labels,created=time.monotonic())
-            job['thumb']=_thumb(frame,box,self.drive_id,int(ts*10))
-            self.publish_pending(job);self.jobs.put_nowait(job)
-        if min_side>=24 and confidence>=.55:
-            self.class_seen[name]=ts
+        with self.offer_lock:
+            x1,y1,x2,y2=box
+            min_side=min(x2-x1,y2-y1)
+            last_read=last_kept_at(self.recent_kept, name)
+            if should_read_sign(ts, confidence, min_side, self.class_seen.get(name), last_read) and box_is_clearer(self.last_try.get(name), ts, min_side) and not self.jobs.full():
+                self.last_try[name]=(ts, min_side)
+                crop=frame[max(0,y1-16):min(frame.shape[0],y2+16),max(0,x1-16):min(frame.shape[1],x2+16)].copy()
+                labels={name:1}
+                if name in ('speed limit sign','white sign') and confidence>=.7:
+                    labels['speed limit sign']=3
+                job=dict(id=f'{self.drive_id}:{name}:{int(ts*10)}',first_seen_video=ts,crop=crop,ts=ts,box=box,confidence=confidence,labels=labels,created=time.monotonic())
+                job['thumb']=_thumb(frame,box,self.drive_id,int(ts*10))
+                self.publish_pending(job);self.jobs.put_nowait(job)
+            if min_side>=24 and confidence>=.55:
+                self.class_seen[name]=ts
+    def color_loop(self):
+        """Color runs on its own clock. The sign model is too slow to be the only look at each frame."""
+        last=-1
+        while not self.stop_event.is_set() and self.active():
+            item=self.video.latest()
+            if item is not None:
+                frame,ts=item
+                if last<0 or ts-last>=.12:
+                    last=ts
+                    for proposal in color_sign_boxes(frame):
+                        self._offer_read(frame, ts, proposal['name'], proposal['box'], proposal['confidence'])
+            if getattr(self.video,'ended',False):
+                break
+            self.stop_event.wait(.05)
     def loop(self):
         self.status('running','Local detection running. Signs resolve independently while the video continues.')
         last_ts=-1;last_metrics=0
@@ -374,8 +432,6 @@ class LocalDetector:
                         last_ts=ts
                         result=self.model.track(frame,imgsz=960,device='mps',conf=.15,agnostic_nms=True,persist=True,tracker=str(TRACKER_PATH),verbose=False)[0]
                         self.stats['frames']+=1;self.stats['inference_ms']=round((time.monotonic()-start)*1000,1)
-                        for proposal in color_sign_boxes(frame):
-                            self._offer_read(frame, ts, proposal['name'], proposal['box'], proposal['confidence'])
                         for b in result.boxes:
                             name=self.model.names[int(b.cls.item())]
                             box=list(map(int,b.xyxy[0].tolist()));x1,y1,x2,y2=box;confidence=float(b.conf.item())

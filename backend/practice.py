@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from backend.catalog import get
 from backend.state import state
 from backend.storage import log_answer
-from backend.tts import speak
+from backend.tts import spanish_line, speak
 
 
 def build_session(detections: list[dict]) -> list[dict]:
@@ -27,11 +27,12 @@ def build_session(detections: list[dict]) -> list[dict]:
         seen.append(
             {
                 "sign_id": sign_id,
-                "sign_text": entry["sign_text"],
+                "sign_text": row.get("sign_text") or entry["sign_text"],
                 "question": question["q"],
                 "answer_keywords": question.get("answer_keywords") or [],
                 "meaning": entry["meaning"],
                 "meaning_es": entry["meaning_es"],
+                "spanish": spanish_line(row.get("sign_text") or entry["sign_text"], entry["meaning_es"]),
                 "thumb_url": row.get("thumb_url", ""),
                 "verified": bool(entry.get("verified")),
             }

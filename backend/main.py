@@ -14,8 +14,7 @@ from pydantic import BaseModel
 
 from backend.config import ROOT, settings
 from backend.detector import GeminiDetector
-from backend.chatgpt_routes import router as chatgpt_router, require_tested
-from backend import chatgpt_client
+from backend.chatgpt_routes import router as chatgpt_router
 from backend.events import bus
 from backend.practice import build_session, current_question, submit
 from backend.state import state
@@ -69,6 +68,7 @@ class AnswerBody(BaseModel):
 
 class SpeakBody(BaseModel):
     text: str
+    language: str = "en"
 
 
 def _resolve_source(choice: str):
@@ -97,8 +97,6 @@ def start_drive(body: StartBody):
     global video, detector
     if body.detector not in {"gemini", "chatgpt", "local"}:
         raise HTTPException(400, "Unknown detector.")
-    if body.detector == "chatgpt" or (body.detector == "local" and body.cloud_assist):
-        require_tested(body.model)
     _stop_pipeline()
     try:
         source = _resolve_source(body.source)
@@ -118,14 +116,13 @@ def start_drive(body: StartBody):
         state.detections = []
         state.practice_items = []
         state.practice_index = 0
-    reader = (lambda frame: chatgpt_client.read_frame(frame, body.model)) if body.detector == "chatgpt" else None
     try:
-        if body.detector == "local":
+        if body.detector in {"local", "chatgpt"}:
+            from backend.grok_client import read_crops
             from backend.local_vision import LocalDetector
-            fallback = (lambda crop: chatgpt_client.read_frame(crop, body.model, crop_mode=True)) if body.cloud_assist else None
-            detector = LocalDetector(video, fallback=fallback)
+            detector = LocalDetector(video, fallback=read_crops)
         else:
-            detector = GeminiDetector(video, reader=reader, provider=body.detector)
+            detector = GeminiDetector(video, provider=body.detector)
         video.start()
         detector.start()
     except Exception as exc:
@@ -175,7 +172,7 @@ def practice_answer(body: AnswerBody):
 
 @app.post("/api/speak")
 def api_speak(body: SpeakBody):
-    return {"audio_url": speak(body.text)}
+    return {"audio_url": speak(body.text, body.language)}
 
 
 @app.post("/api/resume")

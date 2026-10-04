@@ -56,11 +56,14 @@ function escapeHTML(value) {
   return el.innerHTML.replaceAll('"', "&quot;");
 }
 
-function addCard(row) {
+function signKey(row) {
+  if (row.sign_id && row.sign_id !== "unknown") return row.sign_id;
+  return `text:${String(row.sign_text || "").toLowerCase()}`;
+}
+
+function cardHTML(row) {
   const title = row.sign_id !== "unknown" && (!row.sign_text || row.sign_text === "Unresolved sign")
     ? row.sign_id.replaceAll("_", " ").toUpperCase() : row.sign_text;
-  const card = document.createElement("article");
-  card.className = "card";
   const meaning = row.meaning
     ? `<span>${escapeHTML(row.meaning)}</span>${row.verified ? "" : '<div class="draft">Draft meaning, not checked against the sign manual yet.</div>'}`
     : `<span>${escapeHTML(row.sign_text || "Unrecognized sign")}</span>`;
@@ -73,18 +76,36 @@ function addCard(row) {
     : row.safety_critical
       ? '<span class="chip">safety</span>'
       : "";
-  card.innerHTML = `
+  return `
     <img src="${escapeHTML(row.thumb_url || "")}" alt="" />
     <div>
       <strong>${escapeHTML(title || row.sign_id)}</strong>
       ${chip}
       ${meaning}
     </div>`;
-  if (row.event_id) {
-    card.dataset.eventId = row.event_id;
-    const previous = [...log.children].find(c => c.dataset.eventId === row.event_id);
-    if (previous) previous.remove();
+}
+
+function addCard(row) {
+  if (row.recognition_status === "pending") {
+    let reading = log.querySelector(".card.reading");
+    if (!reading) {
+      reading = document.createElement("article");
+      reading.className = "card reading";
+      log.prepend(reading);
+    }
+    reading.innerHTML = cardHTML(row);
+    return;
   }
+  const reading = log.querySelector(".card.reading");
+  if (reading) reading.remove();
+  const key = signKey(row);
+  const card = document.createElement("article");
+  card.className = "card";
+  card.dataset.signKey = key;
+  if (row.event_id) card.dataset.eventId = row.event_id;
+  card.innerHTML = cardHTML(row);
+  const previous = log.querySelector(`[data-sign-key="${CSS.escape(key)}"]`);
+  if (previous) previous.remove();
   if (row.recognition_status === "unresolved") log.append(card);
   else log.prepend(card);
 }
@@ -99,7 +120,7 @@ async function start(source) {
   const response = await fetch("/api/drive/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ source, detector: detectorSelect.value, model: modelSelect.value, cloud_assist: document.querySelector("#cloud-assist").checked }),
+    body: JSON.stringify({ source, detector: "local" }),
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -170,7 +191,7 @@ function showQuestion(item) {
     qThumb.hidden = false;
     qThumb.src = item.thumb_url;
   }
-  spanishText = item.meaning_es || "";
+  spanishText = item.spanish || item.meaning_es || "";
   say(item.question, item.audio_url);
   answer.focus();
 }
@@ -186,7 +207,7 @@ document.querySelector("#spanish").addEventListener("click", async () => {
     const response = await fetch("/api/speak", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: spanishText }),
+      body: JSON.stringify({ text: spanishText, language: "es" }),
     });
     const body = await response.json();
     audioUrl = body.audio_url || "";
@@ -226,107 +247,10 @@ function connect() {
 connect();
 
 
-const detectorSelect = document.querySelector("#detector");
-const modelSelect = document.querySelector("#chatgpt-model");
-const accountSelect = document.querySelector("#chatgpt-account");
-const authStatus = document.querySelector("#chatgpt-status");
-const testButton = document.querySelector("#chatgpt-test");
-const startButton = document.querySelector("#start-file");
-let testedModel = "";
-let testedModels = [];
-
-async function apiJSON(path, body) {
-  const response = await fetch(path, body === undefined ? {} : {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
-  });
-  const value = await response.json();
-  if (!response.ok) throw new Error(value.detail || "Request failed.");
-  return value;
-}
-function updateStart() {
-  const local = detectorSelect.value === "local";
-  const needsChatGPT = detectorSelect.value === "chatgpt" || (local && document.querySelector("#cloud-assist").checked);
-  document.querySelector("#local-controls").hidden = !local;
-  document.querySelector("#chatgpt-controls").hidden = !needsChatGPT;
-  startButton.disabled = needsChatGPT && (!testedModel || testedModel !== modelSelect.value);
-}
-detectorSelect.addEventListener("change", updateStart);
-document.querySelector("#cloud-assist").addEventListener("change", updateStart);
-modelSelect.addEventListener("change", () => { testedModel = testedModels.includes(modelSelect.value) ? modelSelect.value : ""; updateStart(); });
-accountSelect.addEventListener("change", () => {
-  testedModel = "";
-  modelSelect.disabled = true;
-  testButton.disabled = true;
-  updateStart();
-  authStatus.textContent = "Click Continue with ChatGPT to authorize this account.";
-});
-document.querySelector("#chatgpt-login").addEventListener("click", async () => {
-  // Open during the click so browsers do not treat the sign-in as an unsolicited popup.
-  const popup = window.open("about:blank", "chatgpt-login");
-  try {
-    const data = await apiJSON("/api/chatgpt/login", { account_id: accountSelect.value || null });
-    if (popup) popup.location.href = data.url;
-    else window.location.href = data.url;
-    authStatus.textContent = "Complete sign-in in the new tab, then return here and refresh.";
-  } catch (error) {
-    if (popup) popup.close();
-    authStatus.textContent = error.message;
-  }
-});
-document.querySelector("#chatgpt-disconnect").addEventListener("click", async () => {
-  try {
-    const data = await apiJSON("/api/chatgpt/disconnect", {});
-    testedModel = "";
-    modelSelect.replaceChildren(new Option("Connect to load models", ""));
-    modelSelect.disabled = true;
-    testButton.disabled = true;
-    await loadChatGPT();
-    authStatus.textContent = data.revoked ? "Disconnected." : "Disconnected locally. Remote revocation was not confirmed; disconnect the app in ChatGPT Settings.";
-  } catch (error) { authStatus.textContent = error.message; }
-});
-testButton.addEventListener("click", async () => {
-  testedModel = "";
-  updateStart();
-  testButton.disabled = true;
-  authStatus.textContent = "Testing one frame with ChatGPT…";
-  try {
-    const selected = modelSelect.value;
-    const data = await apiJSON("/api/chatgpt/test", { model: selected });
-    testedModel = selected; testedModels.push(selected);
-    authStatus.textContent = `Test passed in ${data.seconds}s. ${data.signs.length} sign(s): ${data.signs.map(s => s.sign_text || s.sign_id).join(", ") || "none"}. Ready for Start drive.`;
-  } catch (error) { authStatus.textContent = error.message; }
-  finally { testButton.disabled = false; updateStart(); }
-});
-async function loadChatGPT() {
-  try {
-    const status = await apiJSON("/api/chatgpt/status");
-    testedModels = status.tested_models || [];
-    accountSelect.replaceChildren(new Option("Add an account", ""));
-    for (const a of status.accounts) accountSelect.add(new Option(a.label, a.id));
-    accountSelect.value = status.active || "";
-    document.querySelector("#chatgpt-disconnect").hidden = !status.connected;
-    if (status.connected) {
-      authStatus.textContent = "Connected. Loading your available models…";
-      const data = await apiJSON("/api/chatgpt/models");
-      modelSelect.replaceChildren(...data.models.map(m => new Option(m.name, m.id)));
-      if (!data.models.length) throw new Error("No models were available for this account.");
-      const efficient = data.models.find(m => /luna/i.test(m.id));
-      const previous = data.models.find(m => m.id === (status.tested_models || [])[0]);
-      if (previous || efficient) modelSelect.value = (previous || efficient).id;
-      if (previous) testedModel = previous.id;
-      modelSelect.disabled = false;
-      testButton.disabled = false;
-      authStatus.textContent = testedModel ? "Connected. This model passed the image test; ready for Start drive." : "Connected. Choose a model and click Test one frame. This verifies image access before driving.";
-    }
-    const params = new URLSearchParams(location.search);
-    if (params.get("chatgpt") === "failed") authStatus.textContent = params.get("message") || "Sign-in failed or was declined. Try Continue with ChatGPT again.";
-    if (params.has("chatgpt")) history.replaceState(null, "", "/");
-  } catch (error) { authStatus.textContent = error.message; }
-  updateStart();
-}
-loadChatGPT();
+document.querySelector("#start-file").disabled = false;
 
 function showMetrics(m) {
+  if (m.pending === 0) log.querySelector(".card.reading")?.remove();
   document.querySelector("#pipeline-status").textContent = m.frames == null ? "" :
     `${m.frames} frames analyzed · ${m.pending} reading · ${m.resolved} read · ${m.unresolved} unresolved · ${m.cloud_requests} cloud crops · ${m.inference_ms} ms/frame`;
 }

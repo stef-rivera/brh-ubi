@@ -19,26 +19,7 @@
     <section class="stage">
       <img id="video" alt="Dashcam view" />
       <section class="connection" aria-label="Detection settings">
-        <label for="detector">Sign reader</label>
-        <select id="detector"><option value="local">Local vision</option><option value="chatgpt">ChatGPT plan</option><option value="gemini">Gemini API</option></select>
-        <div id="local-controls">
-          <p class="hint">Finds speed, stop, do-not-enter, road-work, and school signs, and also reads orange, red, white, yellow, and green direction signs by color. Street-name signs are ignored.</p>
-          <label><input id="cloud-assist" type="checkbox" /> Use ChatGPT for uncertain sign crops (up to 8 per drive)</label>
-        </div>
-        <div id="chatgpt-controls">
-          <p class="hint">Uses your ChatGPT plan allowance. ElevenLabs still supplies the voice.</p>
-          <label for="chatgpt-account">ChatGPT account</label>
-          <select id="chatgpt-account"><option value="">Add an account</option></select>
-          <div class="controls">
-            <button id="chatgpt-login" type="button" class="secondary">Continue with ChatGPT</button>
-            <button id="chatgpt-disconnect" type="button" class="secondary" hidden>Disconnect</button>
-          </div>
-          <label for="chatgpt-model">Model</label>
-          <select id="chatgpt-model" disabled><option value="">Connect to load models</option></select>
-          <button id="chatgpt-test" type="button" class="secondary" disabled>Test one frame</button>
-          <p id="chatgpt-status" class="hint" role="status">Connect, choose a model, then test one frame before starting.</p>
-          <a class="hint" href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener noreferrer">Manage ChatGPT usage and app limits</a>
-        </div>
+        <p class="hint">The local model finds the sign. Grok reads the words when the photo is blurry. Street-name signs are ignored.</p>
       </section>
       <div class="controls">
         <button id="start-file" type="button" disabled>Start drive</button>

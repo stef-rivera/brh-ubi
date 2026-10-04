@@ -43,5 +43,23 @@
     "answer": "left",
     "grade": "correct",
     "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T07:52:17.282647+00:00",
+    "drive_id": "2026-10-04T03-50-29",
+    "sign_id": "road_work",
+    "question": "You passed this sign. What is ahead?",
+    "answer": "road work ahead expect there to be delays",
+    "grade": "partial",
+    "channel": "ui"
+  },
+  {
+    "ts": "2026-10-04T07:52:27.569071+00:00",
+    "drive_id": "2026-10-04T03-50-29",
+    "sign_id": "speed_limit",
+    "question": "You passed this sign. What does the number tell you?",
+    "answer": "to not go above 40 miles per hour",
+    "grade": "incorrect",
+    "channel": "ui"
   }
 ]

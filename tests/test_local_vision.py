@@ -3,7 +3,8 @@ from types import SimpleNamespace
 from unittest.mock import Mock,patch
 import numpy as np
 import cv2
-from backend.local_vision import LocalDetector,box_is_clearer,color_sign_boxes,interpret_text,last_kept_at,should_read_sign
+from backend.local_vision import LocalDetector,box_is_clearer,choose_cloud_reading,color_sign_boxes,interpret_text,last_kept_at,reading_was_guessed,should_read_sign
+from backend.tts import spanish_line
 from backend.state import state
 
 class LocalTests(unittest.TestCase):
@@ -17,6 +18,21 @@ class LocalTests(unittest.TestCase):
   self.assertFalse(should_read_sign(17.0, .6, 23, None, None))
   self.assertFalse(should_read_sign(18.0, .9, 40, None, 17.0))
   self.assertTrue(should_read_sign(37.1, .8, 30, None, 17.0))
+ def test_a_slightly_clearer_board_is_read_again(self):
+  self.assertTrue(box_is_clearer((39.5, 66), 39.6, 76))
+ def test_a_guessed_word_is_sent_on_for_a_real_read(self):
+  guessed=dict(sign_text='ROAD WORK AHEAD EXPECT DELAY')
+  self.assertTrue(reading_was_guessed('ROAD NDEA AHEAD EXPECT DELAS', guessed))
+  self.assertFalse(reading_was_guessed('SPEED UIMIT 40', dict(sign_text='SPEED LIMIT 40')))
+ def test_grok_does_not_invent_school_or_one_way(self):
+  self.assertIsNone(choose_cloud_reading([{'sign_id':'school_zone','sign_text':'SCHOOL','confidence':.9}],{'yellow sign':1}))
+  self.assertIsNone(choose_cloud_reading([{'sign_id':'one_way','sign_text':'ONE WAY','confidence':.9}],{'red sign':1}))
+ def test_grok_words_become_the_logged_sentence(self):
+  found=choose_cloud_reading([{'sign_id':'road_work','sign_text':'ROAD WORK AHEAD EXPECT DELAYS','confidence':.8}],{'orange sign':1})
+  self.assertEqual(found['sign_text'],'ROAD WORK AHEAD EXPECT DELAYS')
+ def test_spanish_follows_the_logged_sign(self):
+  self.assertIn('ROAD WORK', spanish_line('ROAD WORK AHEAD EXPECT DELAY','Hay obras mas adelante. Reduce la velocidad y mira el carril.'))
+  self.assertNotIn('Detente por completo', spanish_line('SPEED LIMIT 40','No conduzcas mas rapido que el numero en el letrero.'))
  def test_failed_read_allows_a_closer_look(self):
   self.assertFalse(box_is_clearer((37.8, 24), 38.0, 26))
   self.assertTrue(box_is_clearer((37.8, 24), 39.5, 64))
@@ -69,7 +85,7 @@ class LocalTests(unittest.TestCase):
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
    for target in (d.local_loop,d.cloud_loop):
     t=threading.Thread(target=target,daemon=True);t.start();d.threads.append(t)
-   a=self.job('a');d.publish_pending(a);d.jobs.put(a);self.assertTrue(entered.wait(1))
+   a=self.job('a');a['box']=[0,0,80,80];a['labels']={'orange sign':1};d.publish_pending(a);d.jobs.put(a);self.assertTrue(entered.wait(1))
    b=self.job('b');d.publish_pending(b);d.jobs.put(b)
    until=time.monotonic()+1
    while time.monotonic()<until and not any(r.get('sign_id')=='speed_limit' for r in state.detections):time.sleep(.01)
@@ -80,6 +96,12 @@ class LocalTests(unittest.TestCase):
   d=self.detector();job=self.job('a');d.publish_pending(job);state.drive_id='new-drive';state.detections=[]
   with patch('backend.local_vision.log_detection') as log:d.finish(job,dict(sign_id='stop',sign_text='STOP',confidence=.9));log.assert_not_called()
   self.assertEqual(state.detections,[])
+ def test_speed_limit_is_spoken(self):
+  d=self.detector();job=self.job('a');d.publish_pending(job)
+  with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
+   d.finish(job,dict(sign_id='speed_limit',sign_text='SPEED LIMIT 40',confidence=.9))
+  queued=d.audio_jobs.get_nowait()
+  self.assertEqual(queued[1],'Speed limit 40.')
  def test_slow_audio_does_not_block_recognition(self):
   d=self.detector();job=self.job('a');d.publish_pending(job)
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
