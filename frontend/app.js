@@ -172,7 +172,7 @@ function addCard(row) {
     <img src="${escapeHTML(row.thumb_url || "")}" alt="Captured sign" />
     <div class="card-body">
       <strong>${escapeHTML(title)}</strong>
-      <span class="chip ${row.recognition_status === "resolved" && row.safety_critical ? "" : "quiet"}">${status}</span>
+      ${!row.human_reviewed ? `<span class="chip ${row.recognition_status === "resolved" && row.safety_critical ? "" : "quiet"}">${status}</span>` : ""}
       ${row.meaning && !excluded ? `<p class="meaning">${row.recognition_status === "tentative" ? "If this prediction is correct: " : ""}${escapeHTML(row.meaning)}</p>` : ""}
       ${row.meaning && !excluded && !row.verified ? '<div class="draft">Draft catalog meaning.</div>' : ""}
       ${reason ? `<p class="recognition-reason">${escapeHTML(reason)}</p>` : ""}
