@@ -6,6 +6,7 @@ __pycache__/
 
 data/*.mp4
 data/*.mov
+!data/drive.mp4
 data/thumbs/
 data/audio/*.mp3
 data/weights/
