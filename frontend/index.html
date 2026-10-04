@@ -3,31 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Road English Coach</title>
+  <title>ubi</title>
   <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body class="idle">
   <header>
-    <p class="eyebrow">Road English Coach</p>
+    <p class="wordmark">ubi</p>
   </header>
 
   <main>
     <section class="stage">
       <img id="video" alt="Dashcam view" />
       <div class="hud">
-        <div class="status" id="mode">IDLE</div>
+        <div class="status" id="mode" hidden>IDLE</div>
         <div class="controls">
-          <button id="start-file" type="button" disabled>Start drive</button>
-          <button id="park" type="button" class="secondary" disabled>Park</button>
+          <button id="start-file" type="button" disabled>Start</button>
+          <button id="park" type="button" hidden disabled>Park</button>
+          <button id="coach-end" type="button" hidden>End</button>
         </div>
-        <p class="hint" id="hint">Press Start drive. The first click also turns the voice on.</p>
+        <p class="hint" id="hint"></p>
       </div>
     </section>
 
     <aside id="panel" hidden>
-      <h2 id="panel-title">Parked practice</h2>
-      <p id="coach-status" class="hint" role="status">Parking…</p>
-      <button id="coach-end" type="button" class="secondary">End practice</button>
+      <h2 id="panel-title" hidden>Parked practice</h2>
+      <p id="coach-status" class="hint" role="status" hidden>Parking…</p>
       <p id="pipeline-status" class="hint" hidden></p>
       <div id="log" class="log" hidden></div>
       <form id="practice" class="practice" hidden>

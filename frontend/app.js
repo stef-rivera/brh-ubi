@@ -64,7 +64,10 @@ function setMode(name) {
   mode.textContent = modeName.toUpperCase();
   document.body.classList.remove("idle", "driving", "parked");
   document.body.classList.add(modeName);
-  if (modeName !== "parked") panel.hidden = true;
+  panel.hidden = true;
+  document.querySelector("#start-file").hidden = modeName !== "idle";
+  park.hidden = modeName !== "driving";
+  document.querySelector("#coach-end").hidden = modeName !== "parked";
 }
 
 function escapeHTML(value) {
@@ -133,7 +136,7 @@ async function start(source) {
     hint.textContent = "Connecting to the server; try Start drive again in a moment.";
     return;
   }
-  hint.textContent = "Looking at the road…";
+  hint.textContent = "";
   const response = await fetch("/api/drive/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -154,7 +157,7 @@ async function start(source) {
   stopCoach();
   park.disabled = false;
   setMode("driving");
-  hint.textContent = "On the road. I'll speak when a sign matters.";
+  hint.textContent = "";
 }
 
 document.querySelector("#start-file").addEventListener("click", () => start("file"));
@@ -164,12 +167,10 @@ park.addEventListener("click", async () => {
   clearCues();
   const generation = ++coachGeneration;
   stopCoach();
-  panel.hidden = false;
-  panelTitle.textContent = "Parked practice";
-  coachStatus.textContent = "Parking…";
   log.hidden = true;
   practice.hidden = true;
   hint.textContent = "";
+  setMode("parked");
   let stream = null;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
@@ -187,13 +188,12 @@ park.addEventListener("click", async () => {
     return;
   }
   setMode("parked");
-  panel.hidden = false;
   if (!body.voice) {
     if (stream) stream.getTracks().forEach((track) => track.stop());
-    coachStatus.textContent = body.voice_error || "Voice practice is unavailable right now.";
+    hint.textContent = body.voice_error || "Voice practice is unavailable right now.";
     return;
   }
-  if (!stream) coachStatus.textContent = "The mic is off, so the coach can talk but cannot hear you.";
+  if (!stream) hint.textContent = "The microphone is off.";
   beginCoach(body.voice, stream);
 });
 
@@ -201,7 +201,7 @@ document.querySelector("#coach-end").addEventListener("click", () => {
   coachGeneration += 1;
   stopCoach();
   setMode("idle");
-  hint.textContent = "Practice ended.";
+  hint.textContent = "";
 });
 
 document.querySelector("#practice").addEventListener("submit", async (event) => {
@@ -279,7 +279,7 @@ function connect() {
         }
       }
     }
-    if (message.type === "detector_status") hint.textContent = message.message || message.status;
+    if (message.type === "detector_status" && message.status === "error") hint.textContent = message.message || message.status;
     if (message.type === "detection" || message.type === "detection_update") addCard(message);
     if (message.type === "detection_remove") [...log.children].find(c => c.dataset.eventId === message.event_id)?.remove();
     if (message.type === "pipeline_metrics") showMetrics(message);
@@ -459,9 +459,9 @@ function beginCoach(voice, stream) {
       playCoachPcm(message.delta);
     }
     if (message.type === "response.done") coachStatus.textContent = "Listening. Answer out loud.";
-    if (message.type === "error") coachStatus.textContent = (message.error && message.error.message) || "The coach lost the connection.";
+    if (message.type === "error") hint.textContent = (message.error && message.error.message) || "The coach lost the connection.";
   };
-  socket.onerror = () => { coachStatus.textContent = "The coach could not connect."; };
+  socket.onerror = () => { hint.textContent = "The coach could not connect."; };
   socket.onclose = () => {
     if (coachSocket === socket) coachStatus.textContent = "Practice ended.";
   };

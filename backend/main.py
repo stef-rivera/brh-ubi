@@ -217,6 +217,7 @@ def stream():
 
 
 async def _frames():
+    from backend.local_vision import paint_look
     blank = None
     while True:
         item = video.latest() if video is not None else None
@@ -225,7 +226,10 @@ async def _frames():
                 blank = _placeholder()
             payload = blank
         else:
-            frame, _ts = item
+            frame, ts = item
+            current = detector
+            if current is not None and hasattr(current, "glance"):
+                paint_look(frame, current.glance(ts))
             ok, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
             payload = buf.tobytes() if ok else b""
         yield (

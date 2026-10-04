@@ -244,6 +244,22 @@ def should_read_sign(ts, confidence, min_side, last_seen, last_read):
     repeated = last_seen is not None and 0 < ts - last_seen <= 1
     return repeated or confidence >= .7
 
+def paint_look(frame, boxes):
+    """Draw a plain outline around each sign the finders are looking at. No words."""
+    height, width = frame.shape[:2]
+    for box in boxes:
+        if len(box) != 4:
+            continue
+        x1, y1, x2, y2 = [int(value) for value in box]
+        x1 = max(0, min(width - 1, x1))
+        y1 = max(0, min(height - 1, y1))
+        x2 = max(0, min(width - 1, x2))
+        y2 = max(0, min(height - 1, y2))
+        if x2 - x1 < 2 or y2 - y1 < 2:
+            continue
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 2)
+    return frame
+
 class LocalDetector:
     def __init__(self, video, fallback=None, model=None, ocr=read_text, voice=speak):
         self.video=video; self.drive_id=state.drive_id; self.fallback=fallback; self.ocr=ocr; self.voice=voice
@@ -257,10 +273,22 @@ class LocalDetector:
         self.model=model
         self.stop_event=threading.Event(); self.jobs=queue.Queue(8); self.cloud_jobs=queue.Queue(6); self.audio_jobs=queue.Queue(8)
         self.tracks={};self.seen={};self.recent_kept={};self.class_seen={};self.last_try={};self.threads=[];self.cloud_count=0;self.cloud_disabled=False
-        self.offer_lock=threading.Lock()
+        self.offer_lock=threading.Lock(); self.look={}
         self.stats={'frames':0,'pending':0,'resolved':0,'unresolved':0,'cloud_requests':0,'queue_full':0,'inference_ms':0,'audio_ready':0}
 
     def active(self): return not self.stop_event.is_set() and state.drive_id==self.drive_id
+    def _remember(self, source, boxes, ts):
+        with self.offer_lock:
+            self.look[source]=(float(ts), [list(map(int, box)) for box in boxes])
+    def glance(self, ts):
+        """Boxes the finders drew on the latest frames, held briefly so the outline stays with the sign."""
+        if not self.active(): return []
+        found=[]
+        with self.offer_lock:
+            for seen, boxes in self.look.values():
+                if ts-seen<=1:
+                    found.extend(boxes)
+        return found
     def metrics(self):
         if not self.active(): return
         with state.lock:
@@ -415,7 +443,9 @@ class LocalDetector:
                 frame,ts=item
                 if last<0 or ts-last>=.12:
                     last=ts
-                    for proposal in color_sign_boxes(frame):
+                    proposals=color_sign_boxes(frame)
+                    self._remember('color', [proposal['box'] for proposal in proposals], ts)
+                    for proposal in proposals:
                         self._offer_read(frame, ts, proposal['name'], proposal['box'], proposal['confidence'])
             if getattr(self.video,'ended',False):
                 break
@@ -432,9 +462,10 @@ class LocalDetector:
                         last_ts=ts
                         result=self.model.track(frame,imgsz=960,device='mps',conf=.15,agnostic_nms=True,persist=True,tracker=str(TRACKER_PATH),verbose=False)[0]
                         self.stats['frames']+=1;self.stats['inference_ms']=round((time.monotonic()-start)*1000,1)
+                        seen=[]
                         for b in result.boxes:
                             name=self.model.names[int(b.cls.item())]
-                            box=list(map(int,b.xyxy[0].tolist()));x1,y1,x2,y2=box;confidence=float(b.conf.item())
+                            box=list(map(int,b.xyxy[0].tolist()));seen.append(box);x1,y1,x2,y2=box;confidence=float(b.conf.item())
                             # ByteTrack only confirms a box that still overlaps the previous sample.
                             # An approaching sign moves farther than that, so a repeated or sure box is read anyway.
                             if b.id is None:
@@ -459,6 +490,7 @@ class LocalDetector:
                                 # Publish before enqueuing so a fast recognizer cannot race the pending card.
                                 self.publish_pending(job);self.jobs.put_nowait(job);track['submitted']=True;track['best']=None
                             if ts-track['last']>3:del self.tracks[tid]
+                        self._remember('model', seen, ts)
                 if start-last_metrics>1:self.metrics();last_metrics=start
                 if self.video.ended:break
                 self.stop_event.wait(max(0,.1-(time.monotonic()-start)))

@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock,patch
 import numpy as np
 import cv2
-from backend.local_vision import LocalDetector,box_is_clearer,choose_cloud_reading,color_sign_boxes,interpret_text,last_kept_at,reading_was_guessed,should_read_sign
+from backend.local_vision import LocalDetector,box_is_clearer,choose_cloud_reading,color_sign_boxes,interpret_text,last_kept_at,paint_look,reading_was_guessed,should_read_sign
 from backend.tts import spanish_line
 from backend.state import state
 
@@ -117,6 +117,17 @@ class LocalTests(unittest.TestCase):
   empty=coach_instructions([])
   self.assertNotIn('ROAD WORK', empty)
   self.assertNotIn('40', empty)
+ def test_glance_holds_a_box_then_lets_it_go(self):
+  d=self.detector()
+  d._remember('model', [[10,20,40,80]], 17.0)
+  d._remember('color', [[100,100,160,140]], 17.2)
+  self.assertEqual(len(d.glance(17.4)), 2)
+  self.assertEqual(d.glance(19.0), [])
+ def test_hitbox_is_an_outline_without_a_label(self):
+  frame=np.zeros((100,120,3),dtype='uint8')
+  paint_look(frame, [[10,20,40,50]])
+  self.assertEqual(frame[20,10].tolist(), [255,255,255])
+  self.assertEqual(frame[35,25].tolist(), [0,0,0])
  def test_speed_limit_is_spoken(self):
   d=self.detector();job=self.job('a');d.publish_pending(job)
   with patch('backend.local_vision.log_detection'),patch('backend.local_vision.bus.publish'):
